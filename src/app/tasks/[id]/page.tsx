@@ -41,6 +41,13 @@ interface Task {
       avatarUrl: string | null;
     };
   }>;
+  escrowTx?: Array<{
+    id: string;
+    type: "LOCK" | "RELEASE";
+    amount: number;
+    txSignature: string | null;
+    status: string;
+  }>;
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -297,6 +304,36 @@ export default function TaskDetailPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Payment Info - Show for completed tasks */}
+              {task.status === "COMPLETED" && task.escrowTx && task.escrowTx.length > 0 && (
+                <div className="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden">
+                  <div className="px-6 py-4 border-b border-white/5">
+                    <h3 className="font-semibold text-white">💸 Payment</h3>
+                  </div>
+                  <div className="p-6 space-y-3">
+                    {task.escrowTx.filter(tx => tx.type === "RELEASE" && tx.txSignature).map((tx) => (
+                      <div key={tx.id}>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="text-muted">Amount</span>
+                          <span className="text-primary font-medium">${formatUsdc(tx.amount)} USDC</span>
+                        </div>
+                        <a
+                          href={`https://solscan.io/tx/${tx.txSignature}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-primary hover:text-[#00e63e] transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          View on Solscan
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* How it works */}
               <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-6">
