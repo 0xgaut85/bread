@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { formatUsdc, truncateAddress } from "@/lib/utils";
-import { Footer } from "@/components/layout/Footer";
 
 interface LeaderboardUser {
   id: string;
@@ -19,6 +18,8 @@ interface LeaderboardUser {
 export default function LeaderboardPage() {
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -26,7 +27,7 @@ export default function LeaderboardPage() {
 
   const fetchLeaderboard = async () => {
     try {
-      const response = await fetch("/api/leaderboard");
+      const response = await fetch("/api/leaderboard?limit=100");
       if (response.ok) {
         const data = await response.json();
         setUsers(data.leaderboard);
@@ -38,6 +39,20 @@ export default function LeaderboardPage() {
     }
   };
 
+  // Filter users based on search query
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery.trim()) return users;
+    const query = searchQuery.toLowerCase();
+    return users.filter(
+      (user) =>
+        user.walletAddress.toLowerCase().includes(query) ||
+        (user.name && user.name.toLowerCase().includes(query))
+    );
+  }, [users, searchQuery]);
+
+  // Show top 10 or all based on showAll state
+  const displayedUsers = showAll ? filteredUsers : filteredUsers.slice(0, 10);
+
   return (
     <div className="min-h-screen bg-black flex flex-col">
       <main className="flex-1 pt-14">
@@ -47,9 +62,35 @@ export default function LeaderboardPage() {
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
               Leaderboard
             </h1>
-            <p className="text-muted-light">
+            <p className="text-muted-light mb-6">
               Top bread winners
             </p>
+            
+            {/* Search Bar */}
+            <div className="max-w-md mx-auto">
+              <div className="relative">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name or wallet..."
+                  className="w-full bg-white/5 border border-white/10 rounded-full py-2.5 pl-10 pr-4 text-sm text-white placeholder-muted focus:outline-none focus:border-white/20 transition-colors"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -69,13 +110,15 @@ export default function LeaderboardPage() {
             <div className="flex items-center justify-center py-20">
               <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : users.length === 0 ? (
+          ) : filteredUsers.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-muted">No winners yet. Be the first!</p>
+              <p className="text-muted">
+                {searchQuery ? "No users found matching your search." : "No winners yet. Be the first!"}
+              </p>
             </div>
           ) : (
             <div className="divide-y divide-white/5">
-              {users.map((user, index) => (
+              {displayedUsers.map((user, index) => (
                 <div
                   key={user.id}
                   className="grid grid-cols-12 gap-4 px-4 sm:px-8 py-4 items-center hover:bg-white/[0.02] transition-colors"
@@ -139,10 +182,20 @@ export default function LeaderboardPage() {
               ))}
             </div>
           )}
+
+          {/* Show More Button */}
+          {!isLoading && filteredUsers.length > 10 && !searchQuery && (
+            <div className="py-6 text-center border-t border-white/5">
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-sm text-white transition-colors"
+              >
+                {showAll ? "Show Top 10" : `Show All (${filteredUsers.length})`}
+              </button>
+            </div>
+          )}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -64,6 +64,12 @@ export function Header() {
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Text Links - bags.fm style with brackets */}
             <Link
+              href="/leaderboard"
+              className="hidden md:block text-sm text-muted-light hover:text-white transition-colors"
+            >
+              [leaderboard]
+            </Link>
+            <Link
               href="/docs"
               className="hidden md:block text-sm text-muted-light hover:text-white transition-colors"
             >

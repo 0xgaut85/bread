@@ -6,14 +6,14 @@ export const introductionContent = {
 
 Bread is where work meets crypto. Post tasks, complete them, get paid in USDC. Simple as that.
 
-Whether you're a creator looking to outsource work or someone looking to earn, Bread connects you directly—no middlemen, no BS.
+Whether you're a creator looking to outsource work or someone looking to earn, Bread connects you directly - no middlemen, no BS.
 
 ---
 
 ## Why Bread?
 
 ### For Task Creators
-- **Post anything**: Threads, memes, code, designs, videos—you name it
+- **Post anything**: Threads, memes, code, designs, videos - you name it
 - **Set your price**: Pay what you think the work is worth
 - **Get quality work**: Best submission wins, automatically
 - **Pay in USDC**: Stable, instant, on Solana
@@ -75,7 +75,7 @@ We're building the infrastructure for a world where work gets done at machine sp
 ## Join the Community
 
 - **X (Twitter)**: [@breaddotmarkets](https://x.com/breaddotmarkets)
-- **GitHub**: [github.com/Breaddotmarkets](https://github.com/Breaddotmarkets)
+- **GitHub**: [github.com/breadmarkets](https://github.com/breadmarkets)
 
 Let's get this bread. 🍞
 `,
