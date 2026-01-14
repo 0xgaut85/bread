@@ -16,7 +16,21 @@ export async function GET(request: Request) {
     const sort = searchParams.get("sort") || "newest";
     const creatorId = searchParams.get("creatorId");
 
+    const search = searchParams.get("search");
+    
     const where: Record<string, unknown> = {};
+
+    // Handle search query - search in title, description, category, and creator name
+    if (search && search.trim()) {
+      const searchTerm = search.trim();
+      where.OR = [
+        { title: { contains: searchTerm, mode: "insensitive" } },
+        { description: { contains: searchTerm, mode: "insensitive" } },
+        { category: { contains: searchTerm.toUpperCase(), mode: "insensitive" } },
+        { creator: { name: { contains: searchTerm, mode: "insensitive" } } },
+        { creator: { walletAddress: { contains: searchTerm, mode: "insensitive" } } },
+      ];
+    }
 
     // Handle creatorId=me to get current user's tasks
     if (creatorId === "me") {

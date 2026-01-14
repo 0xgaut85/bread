@@ -58,10 +58,21 @@ export default function TasksPage() {
   const [activeSort, setActiveSort] = useState<SortOption>("trending");
   const [activeStatus, setActiveStatus] = useState<StatusFilter>("");
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1); // Reset to page 1 when search changes
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
     fetchTasks();
-  }, [activeSort, activeStatus, page]);
+  }, [activeSort, activeStatus, page, debouncedSearch]);
 
   const fetchTasks = async () => {
     setIsLoading(true);
@@ -70,6 +81,7 @@ export default function TasksPage() {
       params.set("page", page.toString());
       params.set("sort", activeSort);
       if (activeStatus) params.set("status", activeStatus);
+      if (debouncedSearch) params.set("search", debouncedSearch);
 
       const response = await fetch(`/api/tasks?${params.toString()}`);
       if (response.ok) {
@@ -89,6 +101,11 @@ export default function TasksPage() {
     setPage(1);
   };
 
+  const clearSearch = () => {
+    setSearchQuery("");
+    setDebouncedSearch("");
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <main className="flex-1 pt-14">
@@ -101,6 +118,42 @@ export default function TasksPage() {
             <p className="text-muted-light">
               Find work, get bread
             </p>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="border-b border-white/5">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg className="w-5 h-5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for a task, user, category (meme, thread, design...)"
+                className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-white placeholder-muted focus:outline-none focus:border-primary/50 focus:bg-white/[0.05] transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted hover:text-white transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            {debouncedSearch && (
+              <p className="text-xs text-muted mt-2">
+                Showing results for "<span className="text-primary">{debouncedSearch}</span>"
+                {pagination && ` (${pagination.total} found)`}
+              </p>
+            )}
           </div>
         </div>
 
