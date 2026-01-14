@@ -107,15 +107,15 @@ export default function TasksPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pb-16 md:pb-0">
       <main className="flex-1 pt-14">
         {/* Page Header - bags.fm style */}
         <div className="border-b border-white/5">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-12 text-center">
+            <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2">
               Tasks
             </h1>
-            <p className="text-muted-light">
+            <p className="text-sm sm:text-base text-muted-light">
               Find work, get bread
             </p>
           </div>
@@ -123,10 +123,10 @@ export default function TasksPage() {
 
         {/* Search Bar */}
         <div className="border-b border-white/5">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -134,15 +134,15 @@ export default function TasksPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for a task, user, category (meme, thread, design...)"
-                className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-white placeholder-muted focus:outline-none focus:border-primary/50 focus:bg-white/[0.05] transition-all"
+                placeholder="Search tasks..."
+                className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-2.5 sm:py-3 pl-10 sm:pl-12 pr-10 sm:pr-12 text-sm sm:text-base text-white placeholder-muted focus:outline-none focus:border-primary/50 focus:bg-white/[0.05] transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={clearSearch}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted hover:text-white transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3 sm:pr-4 flex items-center text-muted hover:text-white transition-colors"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -159,16 +159,18 @@ export default function TasksPage() {
 
         {/* Filters - bags.fm style */}
         <div className="border-b border-white/5">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              {/* Sort Tabs */}
-              <div className="tab-nav overflow-x-auto">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              {/* Sort Tabs - Scrollable on mobile */}
+              <div className="flex gap-1 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:pb-0 scrollbar-hide">
                 {sortOptions.map((option) => (
                   <button
                     key={option.value}
                     onClick={() => handleSortChange(option.value)}
-                    className={`tab-item whitespace-nowrap ${
-                      activeSort === option.value ? "active" : ""
+                    className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
+                      activeSort === option.value
+                        ? "bg-primary text-black"
+                        : "bg-white/5 text-muted hover:text-white"
                     }`}
                   >
                     {option.label}
@@ -177,13 +179,13 @@ export default function TasksPage() {
               </div>
 
               {/* Status Filter & New Task */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1 bg-white/[0.03] border border-white/5 rounded-lg p-1">
+              <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                <div className="flex items-center gap-0.5 sm:gap-1 bg-white/[0.03] border border-white/5 rounded-lg p-0.5 sm:p-1">
                   {statusFilters.map((filter) => (
                     <button
                       key={filter.value}
                       onClick={() => { setActiveStatus(filter.value); setPage(1); }}
-                      className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                      className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors ${
                         activeStatus === filter.value
                           ? "bg-white/10 text-white"
                           : "text-muted hover:text-white"
@@ -194,9 +196,9 @@ export default function TasksPage() {
                   ))}
                 </div>
 
-                <Link href="/tasks/create">
-                  <button className="btn-primary text-sm px-4 py-2">
-                    + New Task
+                <Link href="/tasks/create" className="shrink-0">
+                  <button className="btn-primary text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2">
+                    + New
                   </button>
                 </Link>
               </div>
@@ -237,21 +239,21 @@ export default function TasksPage() {
 
           {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 py-8 border-t border-white/5">
+            <div className="flex items-center justify-center gap-2 sm:gap-4 py-6 sm:py-8 border-t border-white/5">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="px-4 py-2 text-sm text-muted hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-muted hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                ← Previous
+                ← Prev
               </button>
-              <span className="text-sm text-muted">
+              <span className="text-xs sm:text-sm text-muted">
                 {page} / {pagination.totalPages}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
                 disabled={page >= pagination.totalPages}
-                className="px-4 py-2 text-sm text-muted hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-muted hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Next →
               </button>
@@ -260,7 +262,7 @@ export default function TasksPage() {
 
           {/* Results count */}
           {pagination && (
-            <div className="text-center pb-8">
+            <div className="text-center pb-20 sm:pb-8">
               <span className="text-xs text-muted">
                 {pagination.total} total tasks
               </span>

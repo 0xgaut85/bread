@@ -83,14 +83,14 @@ export function BreadAgent() {
       {/* Floating Button - white bg with original logo */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl ${
+        className={`fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl ${
           isOpen ? "rotate-90 scale-95" : ""
         }`}
         aria-label={isOpen ? "Close chat" : "Open Bread Agent chat"}
       >
         {isOpen ? (
           <svg
-            className="w-6 h-6 text-black"
+            className="w-5 h-5 md:w-6 md:h-6 text-black"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -106,21 +106,21 @@ export function BreadAgent() {
           <Image
             src="/logo.png"
             alt="Bread Agent"
-            width={36}
-            height={36}
-            className="rounded-full"
+            width={32}
+            height={32}
+            className="rounded-full md:w-9 md:h-9"
           />
         )}
       </button>
 
       {/* Chat Panel */}
       <div
-        className={`fixed bottom-24 right-6 z-50 w-[360px] sm:w-[400px] bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 ${
+        className={`fixed inset-x-0 bottom-0 md:inset-x-auto md:bottom-24 md:right-6 z-50 w-full md:w-[400px] bg-[#0a0a0a] border-t md:border border-white/10 md:rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 ${
           isOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 translate-y-4 pointer-events-none"
+            : "opacity-0 translate-y-full md:translate-y-4 pointer-events-none"
         }`}
-        style={{ maxHeight: "min(500px, calc(100vh - 150px))" }}
+        style={{ maxHeight: "min(85vh, 500px)" }}
       >
         {/* Header */}
         <div className="bg-black/50 border-b border-white/5 px-4 py-3 flex items-center gap-3">
@@ -159,8 +159,8 @@ export function BreadAgent() {
 
         {/* Messages */}
         <div
-          className="flex-1 overflow-y-auto p-4 space-y-4"
-          style={{ height: "350px" }}
+          className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4"
+          style={{ height: "min(350px, 50vh)" }}
         >
           {messages.length === 0 ? (
             <div className="text-center py-8">
