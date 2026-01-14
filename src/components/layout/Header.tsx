@@ -81,6 +81,14 @@ export function Header() {
             >
               [how it works]
             </Link>
+            <a
+              href="https://pump.fun/coin/A7krRnGBJZxmjBseFFrk6L9EMmQpPTdWd612mqkcpump"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:block text-sm text-primary hover:text-[#00e63e] transition-colors"
+            >
+              [CA]
+            </a>
 
             {/* Profile Button - only show when authenticated */}
             {isAuthenticated && (
