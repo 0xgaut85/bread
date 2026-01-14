@@ -95,10 +95,10 @@ function MarkdownRenderer({ content }: { content: string }) {
       continue;
     }
 
-    // Headers
+    // Headers - bags.fm style
     if (line.startsWith("# ")) {
       elements.push(
-        <h1 key={key++} className="text-2xl font-bold mt-8 mb-4 text-white">
+        <h1 key={key++} className="text-2xl sm:text-3xl font-bold mt-8 mb-4 text-white">
           {line.slice(2)}
         </h1>
       );
@@ -107,7 +107,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     }
     if (line.startsWith("## ")) {
       elements.push(
-        <h2 key={key++} className="text-xl font-semibold mt-8 mb-3 text-white">
+        <h2 key={key++} className="text-xl sm:text-2xl font-bold mt-10 mb-3 text-white">
           {line.slice(3)}
         </h2>
       );
@@ -125,7 +125,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     }
     if (line.startsWith("#### ")) {
       elements.push(
-        <h4 key={key++} className="text-base font-semibold mt-4 mb-2 text-white/90">
+        <h4 key={key++} className="text-base font-semibold mt-4 mb-2 text-white">
           {line.slice(5)}
         </h4>
       );
@@ -164,7 +164,7 @@ function MarkdownRenderer({ content }: { content: string }) {
       continue;
     }
 
-    // Ordered lists - bags.fm style with step numbers
+    // Ordered lists - bags.fm style with green circular step numbers
     if (/^\d+\.\s/.test(line)) {
       const listItems: string[] = [];
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
@@ -172,11 +172,13 @@ function MarkdownRenderer({ content }: { content: string }) {
         i++;
       }
       elements.push(
-        <ol key={key++} className="my-4 space-y-4">
+        <ol key={key++} className="my-6 space-y-6">
           {listItems.map((item, idx) => (
             <li key={idx} className="flex items-start gap-4">
-              <span className="step-number shrink-0">{idx + 1}</span>
-              <span className="text-muted-light pt-1">{renderInlineMarkdown(item)}</span>
+              <span className="docs-step-number">{idx + 1}</span>
+              <div className="flex-1 pt-0.5">
+                <span className="text-muted-light">{renderInlineMarkdown(item)}</span>
+              </div>
             </li>
           ))}
         </ol>
@@ -226,9 +228,9 @@ function MarkdownRenderer({ content }: { content: string }) {
       continue;
     }
 
-    // Horizontal rule
+    // Horizontal rule - bags.fm style divider
     if (line.trim() === "---" || line.trim() === "***") {
-      elements.push(<hr key={key++} className="my-8 border-white/5" />);
+      elements.push(<hr key={key++} className="docs-divider" />);
       i++;
       continue;
     }
@@ -286,44 +288,47 @@ export default function DocsPage() {
 
   const currentContent = contentMap[activeSection] || contentMap.introduction;
 
+  // Check if this is a special/highlighted nav item
+  const isSpecialNav = (id: string) => id === "swarms";
+
   return (
     <div className="min-h-screen bg-black flex flex-col">
       <main className="flex-1 pt-14">
         {/* Page Header - bags.fm style */}
-        <div className="border-b border-white/5">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 text-center">
-            <h1 className="text-3xl sm:text-5xl font-bold text-white mb-3">
-              How It Works
-            </h1>
-            <p className="text-lg text-muted-light">
-              Complete tasks, earn USDC, and stack bread.
-            </p>
-          </div>
+        <div className="py-12 sm:py-16 text-center">
+          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-3">
+            How It Works
+          </h1>
+          <p className="text-lg text-muted-light">
+            complete tasks, earn USDC, and stack bread.
+          </p>
         </div>
 
         {/* Content Area */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-          <div className="flex gap-8">
-            {/* Sidebar Navigation - bags.fm style */}
+          <div className="flex gap-6">
+            {/* Sidebar Navigation - bags.fm style with dashed border */}
             <aside className="hidden lg:block w-56 shrink-0">
-              <nav className="sticky top-20 sidebar-nav">
-                {navigation.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveSection(item.id)}
-                    className={`sidebar-nav-item ${activeSection === item.id ? "active" : ""}`}
-                  >
-                    {item.title}
-                  </button>
-                ))}
-              </nav>
+              <div className="sticky top-20 docs-card-sidebar">
+                <nav className="flex flex-col">
+                  {navigation.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveSection(item.id)}
+                      className={`docs-nav-item ${activeSection === item.id ? "active" : ""} ${isSpecialNav(item.id) ? "special" : ""}`}
+                    >
+                      {item.title}
+                    </button>
+                  ))}
+                </nav>
+              </div>
             </aside>
 
             {/* Mobile Navigation */}
             <div className="lg:hidden w-full mb-6">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-white/[0.03] border border-white/5 rounded-lg text-white"
+                className="w-full flex items-center justify-between px-4 py-3 docs-card-sidebar text-white"
               >
                 <span>{navigation.find(n => n.id === activeSection)?.title || "Select section"}</span>
                 <svg
@@ -336,7 +341,7 @@ export default function DocsPage() {
                 </svg>
               </button>
               {isMobileMenuOpen && (
-                <div className="mt-2 bg-[#0a0a0a] border border-white/5 rounded-lg overflow-hidden">
+                <div className="mt-2 docs-card-sidebar overflow-hidden">
                   {navigation.map((item) => (
                     <button
                       key={item.id}
@@ -346,7 +351,7 @@ export default function DocsPage() {
                       }}
                       className={`w-full text-left px-4 py-3 text-sm transition-colors ${
                         activeSection === item.id
-                          ? "bg-primary text-black"
+                          ? "bg-primary text-black font-medium"
                           : "text-muted-light hover:bg-white/5"
                       }`}
                     >
@@ -357,14 +362,14 @@ export default function DocsPage() {
               )}
             </div>
 
-            {/* Main Content */}
+            {/* Main Content - bags.fm style with dashed border */}
             <div className="flex-1 min-w-0">
-              <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-6 sm:p-8">
+              <div className="docs-card-content">
                 <MarkdownRenderer content={currentContent.content} />
 
                 {/* CTA Button at end of sections */}
                 {activeSection === "introduction" && (
-                  <div className="mt-8 pt-6 border-t border-white/5">
+                  <div className="mt-8">
                     <Link href="/tasks">
                       <button className="btn-primary">
                         Browse Tasks
@@ -374,40 +379,13 @@ export default function DocsPage() {
                 )}
 
                 {activeSection === "getting-started" && (
-                  <div className="mt-8 pt-6 border-t border-white/5">
+                  <div className="mt-8">
                     <Link href="/tasks/create">
                       <button className="btn-primary">
                         Create a Task
                       </button>
                     </Link>
                   </div>
-                )}
-              </div>
-
-              {/* Navigation footer */}
-              <div className="mt-6 flex justify-between">
-                {getPrevSection(activeSection) && (
-                  <button
-                    onClick={() => setActiveSection(getPrevSection(activeSection)!)}
-                    className="flex items-center gap-2 text-sm text-muted hover:text-white transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Previous
-                  </button>
-                )}
-                <div />
-                {getNextSection(activeSection) && (
-                  <button
-                    onClick={() => setActiveSection(getNextSection(activeSection)!)}
-                    className="flex items-center gap-2 text-sm text-muted hover:text-white transition-colors"
-                  >
-                    Next
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
                 )}
               </div>
             </div>

@@ -229,6 +229,85 @@ body {
   font-weight: 500;
 }
 
+/* ============================================
+   DOCS PAGE - BAGS.FM STYLE
+   ============================================ */
+
+/* Docs sidebar card with dashed border */
+.docs-card-sidebar {
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* Docs content card with dashed border */
+.docs-card-content {
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 32px;
+}
+
+/* Docs navigation item */
+.docs-nav-item {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--muted-light);
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+}
+
+.docs-nav-item:hover {
+  color: #FFFFFF;
+}
+
+.docs-nav-item.active {
+  background: transparent;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+/* Special highlighted nav item (like "Get Bagged?" on bags.fm) */
+.docs-nav-item.special {
+  background: var(--primary);
+  color: #000000;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.docs-nav-item.special:hover {
+  background: #00e63e;
+  color: #000000;
+}
+
+/* Docs step number - green circular badge */
+.docs-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--primary);
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000000;
+  flex-shrink: 0;
+}
+
+/* Docs section divider */
+.docs-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 24px 0;
+}
+
 /* Stats badge - bags.fm style */
 .stats-badge {
   display: inline-flex;
