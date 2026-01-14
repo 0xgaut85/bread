@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { TREASURY_ADDRESS, USDC_MINT } from "@/lib/x402";
+import { getEscrowPublicKey } from "@/lib/solana";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * GET /api/config
+ * Returns public configuration for clients (escrow address, etc.)
+ */
 export async function GET() {
   return NextResponse.json({
-    treasuryAddress: TREASURY_ADDRESS,
-    usdcMint: USDC_MINT,
-    submissionFee: "0.01", // USDC
+    escrowWallet: getEscrowPublicKey(),
+    usdcMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   });
 }
