@@ -82,6 +82,16 @@ export function Header() {
               [how it works]
             </Link>
 
+            {/* Profile Button - only show when authenticated */}
+            {isAuthenticated && (
+              <Link
+                href="/profile"
+                className="hidden md:block text-sm text-muted-light hover:text-white transition-colors"
+              >
+                [profile]
+              </Link>
+            )}
+
             {/* New Task Button - bags.fm green style */}
             <Link href="/tasks/create">
               <button className="flex items-center gap-1.5 bg-primary text-black font-semibold text-sm px-4 py-2 rounded-full hover:bg-[#00e63e] transition-colors">

@@ -170,147 +170,141 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Main Content */}
+      {/* Main Content - Split Layout */}
       <main className="flex-1 pt-24 pb-8">
-        {/* Hero Section - Split Layout */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[300px] sm:min-h-[400px]">
-            {/* Left Side - Welcome */}
-            <div className="flex flex-col justify-center items-center md:items-start text-center md:text-left px-6 sm:px-12 py-8">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
-                welcome to bread
-              </h1>
-              <p className="text-lg sm:text-xl text-muted-light max-w-md">
-                complete tasks, earn USDC, and stack bread.
-              </p>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-[600px]">
+            {/* Left Side - Task Table */}
+            <div className="flex flex-col py-8 lg:pr-8 lg:border-r lg:border-white/10">
+              {/* Table Header */}
+              <div className="hidden sm:grid grid-cols-12 gap-2 px-4 py-3 text-xs text-muted uppercase tracking-wider border-b border-white/10">
+                <div className="col-span-1">#</div>
+                <div className="col-span-4">Task</div>
+                <div className="col-span-2">Creator</div>
+                <div className="col-span-2 text-right">Submissions</div>
+                <div className="col-span-2 text-right">Deadline</div>
+                <div className="col-span-1 text-right">Reward</div>
+              </div>
 
-            {/* Vertical Separator */}
-            <div className="hidden md:block absolute left-1/2 top-1/2 -translate-y-1/2 w-px h-[200px] bg-white/10" style={{ position: 'relative', left: 0, top: 0, transform: 'none', height: '100%' }}>
-              <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+              {/* Task Rows */}
+              {isLoading ? (
+                <div className="flex items-center justify-center py-20 flex-1">
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : data.tasks.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 flex-1">
+                  <p className="text-muted mb-4">No tasks yet</p>
+                  <Link href="/tasks/create">
+                    <button className="btn-primary">Create the first one</button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="divide-y divide-white/5 flex-1">
+                  {data.tasks.map((task, index) => (
+                    <Link
+                      key={task.id}
+                      href={`/tasks/${task.id}`}
+                      className="grid grid-cols-12 gap-2 px-4 py-4 items-center hover:bg-white/[0.02] transition-colors"
+                    >
+                      {/* Rank */}
+                      <div className="col-span-1 text-muted text-sm">
+                        {index + 1}
+                      </div>
+
+                      {/* Task Info */}
+                      <div className="col-span-11 sm:col-span-4">
+                        <div className="flex items-center gap-3">
+                          {task.creator.avatarUrl ? (
+                            <img
+                              src={task.creator.avatarUrl}
+                              alt=""
+                              className="w-8 h-8 rounded-full shrink-0"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs text-white font-medium shrink-0">
+                              {(task.creator.name || task.creator.walletAddress)[0].toUpperCase()}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-white font-medium text-sm truncate">
+                              {task.title}
+                            </p>
+                            <p className="text-muted text-xs truncate sm:hidden">
+                              {task.creator.name || truncateAddress(task.creator.walletAddress)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Creator - Desktop */}
+                      <div className="hidden sm:block col-span-2">
+                        <span className="text-muted-light text-sm truncate">
+                          {task.creator.name || truncateAddress(task.creator.walletAddress)}
+                        </span>
+                      </div>
+
+                      {/* Submissions - Desktop */}
+                      <div className="hidden sm:block col-span-2 text-right">
+                        <span className="text-muted-light text-sm">
+                          {task._count.submissions}
+                        </span>
+                      </div>
+
+                      {/* Deadline - Desktop */}
+                      <div className="hidden sm:block col-span-2 text-right">
+                        <span className="text-muted text-sm">
+                          {formatRelativeTime(task.deadline)}
+                        </span>
+                      </div>
+
+                      {/* Reward - Desktop */}
+                      <div className="hidden sm:block col-span-1 text-right">
+                        <span className="text-primary font-semibold text-sm">
+                          ${formatUsdc(task.reward)}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* View All Link */}
+              {data.tasks.length > 0 && (
+                <div className="text-center py-4">
+                  <Link
+                    href="/tasks"
+                    className="text-sm text-muted hover:text-white transition-colors"
+                  >
+                    View all tasks →
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Horizontal Separator for Mobile */}
-            <div className="md:hidden w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
+            <div className="lg:hidden w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
 
-            {/* Right Side - Reward Amount */}
-            <div className="flex flex-col justify-center items-center md:items-end text-center md:text-right px-6 sm:px-12 py-8 md:border-l md:border-white/10">
-              <p className="text-sm text-muted uppercase tracking-wider mb-2">
-                rewards available
+            {/* Right Side - Welcome & Rewards */}
+            <div className="flex flex-col justify-center items-center lg:items-start text-center lg:text-left py-8 lg:pl-12">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
+                welcome to bread
+              </h1>
+              <p className="text-lg sm:text-xl text-muted-light max-w-md mb-12">
+                complete tasks, earn USDC, and stack bread.
               </p>
-              <div className="text-5xl sm:text-6xl lg:text-7xl font-bold text-primary tabular-nums">
-                <ScrambleNumber value={data.stats.totalRewards} />
+
+              {/* Rewards Section */}
+              <div className="mt-auto">
+                <p className="text-sm text-muted uppercase tracking-wider mb-2">
+                  rewards available
+                </p>
+                <div className="text-5xl sm:text-6xl lg:text-7xl font-bold text-primary tabular-nums">
+                  <ScrambleNumber value={data.stats.totalRewards} />
+                </div>
+                <p className="text-muted-light mt-2">USDC</p>
               </div>
-              <p className="text-muted-light mt-2">USDC</p>
             </div>
           </div>
-        </div>
-
-        {/* Task List - bags.fm table style */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          {/* Table Header */}
-          <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-3 text-xs text-muted uppercase tracking-wider border-b border-white/10">
-            <div className="col-span-1">#</div>
-            <div className="col-span-4">Task</div>
-            <div className="col-span-2">Creator</div>
-            <div className="col-span-2 text-right">Submissions</div>
-            <div className="col-span-2 text-right">Deadline</div>
-            <div className="col-span-1 text-right">Reward</div>
-          </div>
-
-          {/* Task Rows */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : data.tasks.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-muted mb-4">No tasks yet</p>
-              <Link href="/tasks/create">
-                <button className="btn-primary">Create the first one</button>
-              </Link>
-            </div>
-          ) : (
-            <div className="divide-y divide-white/5">
-              {data.tasks.map((task, index) => (
-                <Link
-                  key={task.id}
-                  href={`/tasks/${task.id}`}
-                  className="grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-white/[0.02] transition-colors"
-                >
-                  {/* Rank */}
-                  <div className="col-span-1 text-muted text-sm">
-                    {index + 1}
-                  </div>
-
-                  {/* Task Info */}
-                  <div className="col-span-11 sm:col-span-4">
-                    <div className="flex items-center gap-3">
-                      {task.creator.avatarUrl ? (
-                        <img
-                          src={task.creator.avatarUrl}
-                          alt=""
-                          className="w-8 h-8 rounded-full shrink-0"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs text-white font-medium shrink-0">
-                          {(task.creator.name || task.creator.walletAddress)[0].toUpperCase()}
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-white font-medium text-sm truncate">
-                          {task.title}
-                        </p>
-                        <p className="text-muted text-xs truncate sm:hidden">
-                          {task.creator.name || truncateAddress(task.creator.walletAddress)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Creator - Desktop */}
-                  <div className="hidden sm:block col-span-2">
-                    <span className="text-muted-light text-sm truncate">
-                      {task.creator.name || truncateAddress(task.creator.walletAddress)}
-                    </span>
-                  </div>
-
-                  {/* Submissions - Desktop */}
-                  <div className="hidden sm:block col-span-2 text-right">
-                    <span className="text-muted-light text-sm">
-                      {task._count.submissions}
-                    </span>
-                  </div>
-
-                  {/* Deadline - Desktop */}
-                  <div className="hidden sm:block col-span-2 text-right">
-                    <span className="text-muted text-sm">
-                      {formatRelativeTime(task.deadline)}
-                    </span>
-                  </div>
-
-                  {/* Reward - Desktop */}
-                  <div className="hidden sm:block col-span-1 text-right">
-                    <span className="text-primary font-semibold text-sm">
-                      ${formatUsdc(task.reward)}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* View All Link */}
-          {data.tasks.length > 0 && (
-            <div className="text-center py-8">
-              <Link
-                href="/tasks"
-                className="text-sm text-muted hover:text-white transition-colors"
-              >
-                View all tasks →
-              </Link>
-            </div>
-          )}
         </div>
       </main>
     </div>
