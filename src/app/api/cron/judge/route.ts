@@ -119,11 +119,20 @@ export async function POST(request: NextRequest) {
         try {
           console.log(`[Cron Judge] Judging task: ${task.title} (${task.id})`);
 
-          // Update status to JUDGING
-          await prisma.task.update({
-            where: { id: task.id },
+          // ATOMIC: Update status to JUDGING only if still OPEN (prevents race condition)
+          const updateResult = await prisma.task.updateMany({
+            where: { 
+              id: task.id,
+              status: "OPEN", // Only update if still OPEN
+            },
             data: { status: "JUDGING" },
           });
+
+          // If no rows updated, another process beat us to it
+          if (updateResult.count === 0) {
+            console.log(`[Cron Judge] Task ${task.id} already being processed, skipping`);
+            continue;
+          }
 
           // Judge submissions
           const { winnerId, scores } = await judgeSubmissions(task);
@@ -150,6 +159,35 @@ export async function POST(request: NextRequest) {
 
           // Transfer reward to winner
           const escrowAddress = getEscrowPublicKey();
+          
+          // Check if RELEASE transaction already exists (prevent duplicates)
+          const existingRelease = await prisma.escrowTransaction.findFirst({
+            where: {
+              taskId: task.id,
+              type: "RELEASE",
+            },
+          });
+
+          if (existingRelease) {
+            console.log(`[Cron Judge] RELEASE transaction already exists for task ${task.id}, skipping payment`);
+            // Just update task status based on existing transaction
+            const newStatus = existingRelease.status === "CONFIRMED" ? "COMPLETED" : "PAYMENT_PENDING";
+            await prisma.task.update({
+              where: { id: task.id },
+              data: { status: newStatus },
+            });
+            judgingResults.push({
+              taskId: task.id,
+              taskTitle: task.title,
+              winnerId,
+              winnerWallet: winner.submitter.walletAddress,
+              reward: task.reward,
+              transferSuccess: existingRelease.status === "CONFIRMED",
+              status: newStatus,
+            });
+            continue;
+          }
+
           const transfer = await transferUsdcFromEscrow(
             winner.submitter.walletAddress,
             task.reward

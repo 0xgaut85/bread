@@ -197,6 +197,31 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     console.log(`[Complete] Winner selected: ${winner.submitter.walletAddress.slice(0, 8)}... for ${task.reward} USDC`);
 
+    // Check if RELEASE transaction already exists (prevent duplicates)
+    const existingRelease = await prisma.escrowTransaction.findFirst({
+      where: {
+        taskId: task.id,
+        type: "RELEASE",
+      },
+    });
+
+    if (existingRelease) {
+      console.log(`[Complete] RELEASE transaction already exists for task ${taskId}`);
+      // Update task status based on existing transaction
+      const newStatus = existingRelease.status === "CONFIRMED" ? "COMPLETED" : "PAYMENT_PENDING";
+      await prisma.task.update({
+        where: { id: taskId },
+        data: { status: newStatus },
+      });
+      return NextResponse.json({
+        success: true,
+        message: "Task already processed",
+        taskId,
+        status: newStatus,
+        existingTransaction: existingRelease.txSignature,
+      });
+    }
+
     // Check escrow balance before attempting transfer
     const escrowBalance = await getEscrowBalance();
     const escrowAddress = getEscrowPublicKey();
