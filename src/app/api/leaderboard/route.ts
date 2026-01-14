@@ -20,6 +20,7 @@ export async function GET() {
         name: true,
         avatarUrl: true,
         bio: true,
+        xHandle: true,
         submissions: {
           where: {
             isWinner: true,
@@ -56,6 +57,7 @@ export async function GET() {
           name: user.name,
           avatarUrl: user.avatarUrl,
           bio: user.bio,
+          xHandle: user.xHandle,
           totalEarnings,
           wins,
           totalSubmissions: user._count.submissions,

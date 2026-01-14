@@ -9,10 +9,143 @@ interface LeaderboardUser {
   name: string | null;
   avatarUrl: string | null;
   bio: string | null;
+  xHandle: string | null;
   totalEarnings: number;
   wins: number;
   totalSubmissions: number;
   tasksCreated: number;
+}
+
+// User Card Modal Component
+function UserCardModal({ 
+  user, 
+  onClose,
+  rank 
+}: { 
+  user: LeaderboardUser; 
+  onClose: () => void;
+  rank: number;
+}) {
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div 
+        className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 sm:p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-muted hover:text-white transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        {/* User Avatar & Name */}
+        <div className="flex flex-col items-center text-center mb-6">
+          {/* Rank Badge */}
+          <div className="mb-4">
+            {rank < 3 ? (
+              <span className="text-4xl">
+                {rank === 0 ? "🥇" : rank === 1 ? "🥈" : "🥉"}
+              </span>
+            ) : (
+              <span className="inline-flex items-center justify-center w-10 h-10 bg-white/10 rounded-full text-white font-semibold">
+                #{rank + 1}
+              </span>
+            )}
+          </div>
+
+          {/* Avatar */}
+          {user.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt=""
+              className="w-24 h-24 rounded-full mb-4 border-2 border-white/10"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center text-3xl text-white font-medium mb-4 border-2 border-white/10">
+              {(user.name || user.walletAddress)[0].toUpperCase()}
+            </div>
+          )}
+
+          {/* Name */}
+          <h3 className="text-xl font-bold text-white mb-1">
+            {user.name || "Anonymous"}
+          </h3>
+
+          {/* Wallet Address */}
+          <p className="text-sm text-muted font-mono mb-2">
+            {truncateAddress(user.walletAddress)}
+          </p>
+
+          {/* X Handle */}
+          {user.xHandle && (
+            <a
+              href={`https://x.com/${user.xHandle.replace("@", "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              {user.xHandle}
+            </a>
+          )}
+        </div>
+
+        {/* Bio */}
+        {user.bio && (
+          <div className="mb-6 p-4 bg-white/5 rounded-lg">
+            <p className="text-sm text-muted-light leading-relaxed">
+              {user.bio}
+            </p>
+          </div>
+        )}
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white/5 rounded-lg p-4 text-center">
+            <p className="text-2xl font-bold text-primary">
+              ${formatUsdc(user.totalEarnings)}
+            </p>
+            <p className="text-xs text-muted uppercase tracking-wider mt-1">
+              Total Earnings
+            </p>
+          </div>
+          <div className="bg-white/5 rounded-lg p-4 text-center">
+            <p className="text-2xl font-bold text-white">
+              {user.wins}
+            </p>
+            <p className="text-xs text-muted uppercase tracking-wider mt-1">
+              Wins
+            </p>
+          </div>
+          <div className="bg-white/5 rounded-lg p-4 text-center">
+            <p className="text-2xl font-bold text-white">
+              {user.totalSubmissions}
+            </p>
+            <p className="text-xs text-muted uppercase tracking-wider mt-1">
+              Submissions
+            </p>
+          </div>
+          <div className="bg-white/5 rounded-lg p-4 text-center">
+            <p className="text-2xl font-bold text-white">
+              {user.tasksCreated}
+            </p>
+            <p className="text-xs text-muted uppercase tracking-wider mt-1">
+              Tasks Created
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function LeaderboardPage() {
@@ -20,6 +153,7 @@ export default function LeaderboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{ user: LeaderboardUser; rank: number } | null>(null);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -119,9 +253,10 @@ export default function LeaderboardPage() {
           ) : (
             <div className="divide-y divide-white/5">
               {displayedUsers.map((user, index) => (
-                <div
+                <button
                   key={user.id}
-                  className="grid grid-cols-12 gap-4 px-4 sm:px-8 py-4 items-center hover:bg-white/[0.02] transition-colors"
+                  onClick={() => setSelectedUser({ user, rank: index })}
+                  className="w-full grid grid-cols-12 gap-4 px-4 sm:px-8 py-4 items-center hover:bg-white/[0.02] transition-colors cursor-pointer text-left"
                 >
                   {/* Rank */}
                   <div className="col-span-1">
@@ -178,7 +313,7 @@ export default function LeaderboardPage() {
                       {user.wins} wins
                     </p>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
@@ -196,6 +331,15 @@ export default function LeaderboardPage() {
           )}
         </div>
       </main>
+
+      {/* User Card Modal */}
+      {selectedUser && (
+        <UserCardModal
+          user={selectedUser.user}
+          rank={selectedUser.rank}
+          onClose={() => setSelectedUser(null)}
+        />
+      )}
     </div>
   );
 }
