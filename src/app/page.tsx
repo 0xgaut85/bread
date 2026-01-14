@@ -1,9 +1,67 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useAuth } from "@/components/providers/AuthProvider";
 import { formatUsdc, formatRelativeTime, truncateAddress } from "@/lib/utils";
+
+// Scrambling number component
+function ScrambleNumber({ value, prefix = "$" }: { value: number; prefix?: string }) {
+  const [displayValue, setDisplayValue] = useState("0.00");
+  const [isScrambling, setIsScrambling] = useState(true);
+  
+  useEffect(() => {
+    const targetValue = value.toFixed(2);
+    const duration = 2000; // 2 seconds
+    const scrambleDuration = 1500; // Scramble for 1.5 seconds
+    const startTime = Date.now();
+    
+    const scrambleChars = "0123456789";
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      
+      if (elapsed < scrambleDuration) {
+        // Scrambling phase
+        const scrambled = targetValue
+          .split("")
+          .map((char) => {
+            if (char === "." || char === ",") return char;
+            return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+          })
+          .join("");
+        setDisplayValue(scrambled);
+        requestAnimationFrame(animate);
+      } else if (elapsed < duration) {
+        // Reveal phase - gradually reveal from left to right
+        const progress = (elapsed - scrambleDuration) / (duration - scrambleDuration);
+        const revealIndex = Math.floor(progress * targetValue.length);
+        
+        const revealed = targetValue
+          .split("")
+          .map((char, i) => {
+            if (i <= revealIndex) return char;
+            if (char === "." || char === ",") return char;
+            return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+          })
+          .join("");
+        setDisplayValue(revealed);
+        requestAnimationFrame(animate);
+      } else {
+        // Final value
+        setDisplayValue(targetValue);
+        setIsScrambling(false);
+      }
+    };
+    
+    requestAnimationFrame(animate);
+  }, [value]);
+  
+  return (
+    <span className={isScrambling ? "tabular-nums" : ""}>
+      {prefix}{displayValue}
+    </span>
+  );
+}
 
 interface Task {
   id: string;
@@ -37,7 +95,6 @@ interface DashboardData {
 }
 
 export default function HomePage() {
-  const { isAuthenticated } = useAuth();
   const [data, setData] = useState<DashboardData>({
     stats: { totalTasks: 0, openTasks: 0, totalRewards: 0, totalSubmissions: 0 },
     tasks: [],
@@ -115,30 +172,38 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="flex-1 pt-24 pb-8">
-        {/* Hero Section - bags.fm style */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
-          {/* Stats Badge */}
-          <div className="stats-badge mb-6 inline-flex">
-            <span>${formatUsdc(data.stats.totalRewards)}+</span>
-            <span className="text-muted-light">in rewards available</span>
+        {/* Hero Section - Split Layout */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[300px] sm:min-h-[400px]">
+            {/* Left Side - Welcome */}
+            <div className="flex flex-col justify-center items-center md:items-start text-center md:text-left px-6 sm:px-12 py-8">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
+                welcome to bread
+              </h1>
+              <p className="text-lg sm:text-xl text-muted-light max-w-md">
+                complete tasks, earn USDC, and stack bread.
+              </p>
+            </div>
+
+            {/* Vertical Separator */}
+            <div className="hidden md:block absolute left-1/2 top-1/2 -translate-y-1/2 w-px h-[200px] bg-white/10" style={{ position: 'relative', left: 0, top: 0, transform: 'none', height: '100%' }}>
+              <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+            </div>
+
+            {/* Horizontal Separator for Mobile */}
+            <div className="md:hidden w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
+
+            {/* Right Side - Reward Amount */}
+            <div className="flex flex-col justify-center items-center md:items-end text-center md:text-right px-6 sm:px-12 py-8 md:border-l md:border-white/10">
+              <p className="text-sm text-muted uppercase tracking-wider mb-2">
+                rewards available
+              </p>
+              <div className="text-5xl sm:text-6xl lg:text-7xl font-bold text-primary tabular-nums">
+                <ScrambleNumber value={data.stats.totalRewards} />
+              </div>
+              <p className="text-muted-light mt-2">USDC</p>
+            </div>
           </div>
-
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl font-bold text-white mb-4 tracking-tight">
-            Welcome to Bread
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-muted-light mb-8 max-w-lg mx-auto">
-            Complete tasks, earn USDC, and stack bread.
-          </p>
-
-          {/* CTA Button */}
-          <Link href="/tasks/create">
-            <button className="btn-primary text-base px-8 py-3">
-              + new task
-            </button>
-          </Link>
         </div>
 
         {/* Task List - bags.fm table style */}
