@@ -80,17 +80,17 @@ export function BreadAgent() {
 
   return (
     <>
-      {/* Floating Button - 3x size, white bg with inverted logo */}
+      {/* Floating Button - white bg with original logo */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 w-[168px] h-[168px] rounded-full bg-white shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-[0_0_60px_rgba(255,255,255,0.3)] ${
+        className={`fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl ${
           isOpen ? "rotate-90 scale-95" : ""
         }`}
         aria-label={isOpen ? "Close chat" : "Open Bread Agent chat"}
       >
         {isOpen ? (
           <svg
-            className="w-16 h-16 text-black"
+            className="w-6 h-6 text-black"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -106,16 +106,16 @@ export function BreadAgent() {
           <Image
             src="/logo.png"
             alt="Bread Agent"
-            width={96}
-            height={96}
-            className="rounded-full invert"
+            width={36}
+            height={36}
+            className="rounded-full"
           />
         )}
       </button>
 
       {/* Chat Panel */}
       <div
-        className={`fixed bottom-[200px] right-6 z-50 w-[360px] sm:w-[400px] bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 ${
+        className={`fixed bottom-24 right-6 z-50 w-[360px] sm:w-[400px] bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 ${
           isOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 translate-y-4 pointer-events-none"
