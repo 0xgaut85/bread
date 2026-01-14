@@ -150,7 +150,7 @@ export default function TasksPage() {
             </div>
             {debouncedSearch && (
               <p className="text-xs text-muted mt-2">
-                Showing results for "<span className="text-primary">{debouncedSearch}</span>"
+                Showing results for &ldquo;<span className="text-primary">{debouncedSearch}</span>&rdquo;
                 {pagination && ` (${pagination.total} found)`}
               </p>
             )}
