@@ -4,40 +4,58 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { formatUsdc, formatRelativeTime, truncateAddress } from "@/lib/utils";
 
-// Scrambling number component
+// Scrambling number component - slow, cinematic effect
 function ScrambleNumber({ value, prefix = "$" }: { value: number; prefix?: string }) {
   const [displayValue, setDisplayValue] = useState("0.00");
   const [isScrambling, setIsScrambling] = useState(true);
   
   useEffect(() => {
     const targetValue = value.toFixed(2);
-    const duration = 3000; // 3 seconds total
-    const scrambleDuration = 2200; // Scramble for 2.2 seconds
-    const startTime = Date.now();
-    
     const scrambleChars = "0123456789";
     
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
+    // Slow scramble: change numbers every 80ms for 4 seconds, then reveal one by one
+    const scrambleInterval = 80; // ms between each number change (slower = more readable)
+    const totalScrambleTime = 4000; // 4 seconds of scrambling
+    const revealDelay = 300; // ms between revealing each digit
+    
+    let scrambleCount = 0;
+    const maxScrambles = totalScrambleTime / scrambleInterval;
+    
+    // Scrambling phase
+    const scrambleTimer = setInterval(() => {
+      scrambleCount++;
       
-      if (elapsed < scrambleDuration) {
-        // Scrambling phase
-        const scrambled = targetValue
-          .split("")
-          .map((char) => {
-            if (char === "." || char === ",") return char;
-            return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
-          })
-          .join("");
-        setDisplayValue(scrambled);
-        requestAnimationFrame(animate);
-      } else if (elapsed < duration) {
-        // Reveal phase - gradually reveal from left to right
-        const progress = (elapsed - scrambleDuration) / (duration - scrambleDuration);
-        const revealIndex = Math.floor(progress * targetValue.length);
+      if (scrambleCount >= maxScrambles) {
+        clearInterval(scrambleTimer);
+        // Start reveal phase
+        revealDigits();
+        return;
+      }
+      
+      const scrambled = targetValue
+        .split("")
+        .map((char) => {
+          if (char === "." || char === ",") return char;
+          return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+        })
+        .join("");
+      setDisplayValue(scrambled);
+    }, scrambleInterval);
+    
+    // Reveal phase - reveal one digit at a time
+    const revealDigits = () => {
+      let revealIndex = 0;
+      const digits = targetValue.split("");
+      
+      const revealTimer = setInterval(() => {
+        if (revealIndex >= digits.length) {
+          clearInterval(revealTimer);
+          setDisplayValue(targetValue);
+          setIsScrambling(false);
+          return;
+        }
         
-        const revealed = targetValue
-          .split("")
+        const revealed = digits
           .map((char, i) => {
             if (i <= revealIndex) return char;
             if (char === "." || char === ",") return char;
@@ -45,15 +63,13 @@ function ScrambleNumber({ value, prefix = "$" }: { value: number; prefix?: strin
           })
           .join("");
         setDisplayValue(revealed);
-        requestAnimationFrame(animate);
-      } else {
-        // Final value
-        setDisplayValue(targetValue);
-        setIsScrambling(false);
-      }
+        revealIndex++;
+      }, revealDelay);
     };
     
-    requestAnimationFrame(animate);
+    return () => {
+      clearInterval(scrambleTimer);
+    };
   }, [value]);
   
   return (
