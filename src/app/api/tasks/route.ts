@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, verifySignature, createSignMessage } from "@/lib/auth";
+import { getNonce, deleteNonce } from "@/lib/nonce-store";
 import { DEFAULT_PAGE_SIZE, ESCROW_WALLET_ADDRESS } from "@/lib/constants";
 import { verifyUsdcDeposit } from "@/lib/solana";
 
@@ -154,17 +155,39 @@ export async function POST(request: Request) {
     const adminApiKey = process.env.ADMIN_API_KEY;
     const isAdmin = adminApiKey && authHeader === `Bearer ${adminApiKey}`;
 
-    const payload = await getCurrentUser();
+    const body = await request.json();
+    const { title, description, category, submissionType, reward, deadline, deadlineHours, escrowTxSignature, walletAddress, signature, nonce } = body;
 
-    if (!payload && !isAdmin) {
+    // Determine authentication method
+    let userId: string | undefined;
+    let userWallet: string | undefined;
+
+    // Try cookie-based auth first (for web users)
+    const payload = await getCurrentUser();
+    
+    if (payload) {
+      userId = payload.userId;
+      userWallet = payload.walletAddress;
+    } 
+    // Try wallet signature auth (for AI agents)
+    else if (walletAddress && signature && nonce) {
+      const authResult = await authenticateAgent(walletAddress, signature, nonce);
+      if (!authResult.success) {
+        return NextResponse.json(
+          { error: authResult.error },
+          { status: 401 }
+        );
+      }
+      userId = authResult.userId;
+      userWallet = walletAddress;
+    }
+    // Admin auth
+    else if (!isAdmin) {
       return NextResponse.json(
-        { error: "Not authenticated" },
+        { error: "Not authenticated. Provide walletAddress, signature, and nonce for AI agent auth." },
         { status: 401 }
       );
     }
-
-    const body = await request.json();
-    const { title, description, category, submissionType, reward, deadline, deadlineHours, escrowTxSignature } = body;
 
     // Validate required fields
     if (!title || !description || !category || !submissionType || !reward || (!deadline && !deadlineHours)) {
@@ -218,8 +241,8 @@ export async function POST(request: Request) {
     }
 
     // For admin, get or create system user
-    let creatorId = payload?.userId;
-    let fromWallet = payload?.walletAddress || "SYSTEM";
+    let creatorId = userId;
+    let fromWallet = userWallet || "SYSTEM";
     
     if (isAdmin && !creatorId) {
       let systemUser = await prisma.user.findFirst({
@@ -292,5 +315,64 @@ export async function POST(request: Request) {
       { error: "Failed to create task", details: errorMessage },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * Authenticate an AI agent via wallet signature
+ * Creates user profile if it doesn't exist
+ */
+async function authenticateAgent(
+  walletAddress: string,
+  signature: string,
+  nonce: string
+): Promise<{ success: boolean; userId?: string; error?: string }> {
+  try {
+    // SECURITY: Verify the nonce was actually issued to this wallet
+    const storedNonce = await getNonce(walletAddress);
+    if (!storedNonce) {
+      return { 
+        success: false, 
+        error: "Nonce expired or not found. Request a new nonce from GET /api/auth/nonce?walletAddress=YOUR_WALLET" 
+      };
+    }
+
+    if (storedNonce !== nonce) {
+      return { 
+        success: false, 
+        error: "Nonce mismatch. Use the nonce returned from /api/auth/nonce" 
+      };
+    }
+
+    // Verify the signature
+    const message = createSignMessage(nonce);
+    const isValid = verifySignature(message, signature, walletAddress);
+
+    if (!isValid) {
+      return { success: false, error: "Invalid signature. Sign the exact message returned from /api/auth/nonce" };
+    }
+
+    // SECURITY: Consume the nonce (one-time use)
+    await deleteNonce(walletAddress);
+
+    // Find or create user
+    let user = await prisma.user.findUnique({
+      where: { walletAddress },
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          walletAddress,
+          name: `Agent ${walletAddress.slice(0, 8)}`,
+        },
+      });
+      console.log(`[Auth] Created new user for wallet: ${walletAddress}`);
+    }
+
+    return { success: true, userId: user.id };
+  } catch (error) {
+    console.error("Agent authentication error:", error);
+    return { success: false, error: "Authentication failed" };
   }
 }
