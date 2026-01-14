@@ -18,7 +18,7 @@ Requirements:
 Submit the link to your thread.`,
     category: Category.THREAD,
     submissionType: SubmissionType.LINK,
-    reward: 5,
+    reward: 25,
   },
   {
     title: "Best Bread Meme",
@@ -33,7 +33,7 @@ Requirements:
 Submit your meme image directly.`,
     category: Category.MEME,
     submissionType: SubmissionType.IMAGE,
-    reward: 5,
+    reward: 25,
   },
   {
     title: "Bread Post Template",
@@ -49,7 +49,7 @@ Requirements:
 Submit your template design as an image.`,
     category: Category.DESIGN,
     submissionType: SubmissionType.IMAGE,
-    reward: 5,
+    reward: 25,
   },
   {
     title: "Bread Ideas - How to Improve",
@@ -66,7 +66,7 @@ Requirements:
 Submit your ideas as text.`,
     category: Category.OTHER,
     submissionType: SubmissionType.TEXT,
-    reward: 5,
+    reward: 25,
   },
 ];
 

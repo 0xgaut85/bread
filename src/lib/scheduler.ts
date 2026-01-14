@@ -54,14 +54,14 @@ export function cancelTaskJudging(taskId: string) {
 }
 
 /**
- * Trigger judging for a specific task
- * Uses internal URL for Railway (avoids DNS issues) or falls back to public URL
+ * Trigger task completion (judging + payment) for a specific task
+ * Uses the new /api/tasks/[id]/complete endpoint for reliable payment release
  */
 async function triggerJudgingForTask(taskId: string) {
   try {
     const apiKey = process.env.ADMIN_API_KEY;
     if (!apiKey) {
-      console.error('[Scheduler] ADMIN_API_KEY not set, cannot judge');
+      console.error('[Scheduler] ADMIN_API_KEY not set, cannot complete task');
       return;
     }
 
@@ -76,24 +76,28 @@ async function triggerJudgingForTask(taskId: string) {
     
     for (const baseUrl of urls) {
       try {
-        console.log(`[Scheduler] Trying to judge task ${taskId} via ${baseUrl}`);
+        console.log(`[Scheduler] Trying to complete task ${taskId} via ${baseUrl}`);
         
-        const response = await fetch(`${baseUrl}/api/judge`, {
+        // Use the new complete endpoint for reliable payment release
+        const response = await fetch(`${baseUrl}/api/tasks/${taskId}/complete`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ taskId }),
         });
 
         if (response.ok) {
           const result = await response.json();
-          console.log(`[Scheduler] Task ${taskId} judged successfully via ${baseUrl}:`, result.winner?.walletAddress?.slice(0, 8) || 'no winner');
+          console.log(`[Scheduler] Task ${taskId} completed via ${baseUrl}:`, {
+            status: result.status,
+            winner: result.winnerWallet?.slice(0, 8),
+            payment: result.transfer?.success ? 'SUCCESS' : 'PENDING',
+          });
           return; // Success!
         } else {
           const errorText = await response.text();
-          console.error(`[Scheduler] Failed to judge task ${taskId} via ${baseUrl}:`, response.status, errorText);
+          console.error(`[Scheduler] Failed to complete task ${taskId} via ${baseUrl}:`, response.status, errorText);
           lastError = new Error(`HTTP ${response.status}: ${errorText}`);
         }
       } catch (fetchError) {
@@ -104,7 +108,7 @@ async function triggerJudgingForTask(taskId: string) {
 
     console.error(`[Scheduler] All URLs failed for task ${taskId}:`, lastError?.message);
   } catch (error) {
-    console.error(`[Scheduler] Error judging task ${taskId}:`, error);
+    console.error(`[Scheduler] Error completing task ${taskId}:`, error);
   }
 }
 
