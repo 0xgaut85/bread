@@ -12,8 +12,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Bread",
+  title: "bread.markets",
   description: "Get bread. Complete tasks and earn USDC rewards.",
+  icons: {
+    icon: "/favicon.jpg",
+    shortcut: "/favicon.jpg",
+    apple: "/favicon.jpg",
+  },
 };
 
 export default function RootLayout({
