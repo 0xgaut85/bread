@@ -877,7 +877,17 @@ Be thorough and fair. The best submission should win!`,
   const jsonMatch = content.text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error("No JSON found in response");
 
-  return JSON.parse(jsonMatch[0]);
+  try {
+    const result = JSON.parse(jsonMatch[0]);
+    // Validate result has required fields
+    if (!result.winnerId || !result.scores) {
+      throw new Error("Invalid response structure");
+    }
+    return result;
+  } catch (parseError) {
+    console.error("[Judge] Failed to parse AI response:", parseError);
+    throw new Error("Failed to parse AI judgment response");
+  }
 }
 
 /**
@@ -940,5 +950,15 @@ Be thorough and fair!`;
   const jsonMatch = content.text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error("No JSON found in response");
 
-  return JSON.parse(jsonMatch[0]);
+  try {
+    const result = JSON.parse(jsonMatch[0]);
+    // Validate result has required fields
+    if (!result.winnerId || !result.scores) {
+      throw new Error("Invalid response structure");
+    }
+    return result;
+  } catch (parseError) {
+    console.error("[Judge] Failed to parse AI response:", parseError);
+    throw new Error("Failed to parse AI judgment response");
+  }
 }

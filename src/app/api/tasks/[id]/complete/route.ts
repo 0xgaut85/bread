@@ -99,6 +99,20 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
+    if (task.status === "JUDGING") {
+      return NextResponse.json(
+        { error: "Task is already being judged", status: task.status },
+        { status: 400 }
+      );
+    }
+
+    if (task.status === "PAYMENT_PENDING") {
+      return NextResponse.json(
+        { error: "Task already judged, payment pending", status: task.status },
+        { status: 400 }
+      );
+    }
+
     // If no submissions, cancel the task
     if (task.submissions.length === 0) {
       await prisma.task.update({
@@ -114,11 +128,29 @@ export async function POST(request: NextRequest, context: RouteContext) {
       });
     }
 
-    // Update status to JUDGING
-    await prisma.task.update({
-      where: { id: taskId },
+    // ATOMIC: Update status to JUDGING only if still OPEN (prevents race condition)
+    // If another process already started judging, this will update 0 rows
+    const updateResult = await prisma.task.updateMany({
+      where: { 
+        id: taskId,
+        status: "OPEN", // Only update if still OPEN
+      },
       data: { status: "JUDGING" },
     });
+
+    // If no rows updated, another process beat us to it
+    if (updateResult.count === 0) {
+      // Re-fetch to get current status
+      const currentTask = await prisma.task.findUnique({
+        where: { id: taskId },
+        select: { status: true },
+      });
+      console.log(`[Complete] Task ${taskId} status changed during processing, current: ${currentTask?.status}`);
+      return NextResponse.json(
+        { error: "Task is no longer available for completion", status: currentTask?.status },
+        { status: 409 } // Conflict
+      );
+    }
 
     console.log(`[Complete] Task ${taskId} has ${task.submissions.length} submissions, judging...`);
 

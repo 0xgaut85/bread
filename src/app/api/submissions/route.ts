@@ -168,6 +168,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate content is not empty or too short
+    const trimmedContent = typeof content === "string" ? content.trim() : "";
+    if (trimmedContent.length < 3) {
+      return NextResponse.json(
+        { error: "Submission content is too short. Please provide meaningful content." },
+        { status: 400 }
+      );
+    }
+
+    // Validate content length (prevent extremely large submissions)
+    if (trimmedContent.length > 100000) {
+      return NextResponse.json(
+        { error: "Submission content is too long. Maximum 100,000 characters." },
+        { status: 400 }
+      );
+    }
+
     // Check if task exists and is open
     const task = await prisma.task.findUnique({
       where: { id: taskId },

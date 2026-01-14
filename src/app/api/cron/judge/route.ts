@@ -481,7 +481,12 @@ Be fair and thorough!`;
     const jsonMatch = content.text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON found in response");
 
-    return JSON.parse(jsonMatch[0]);
+    const result = JSON.parse(jsonMatch[0]);
+    // Validate result has required fields
+    if (!result.winnerId || !result.scores) {
+      throw new Error("Invalid response structure - missing winnerId or scores");
+    }
+    return result;
   } catch (error) {
     console.error("[Cron Judge] AI judging failed:", error);
     
