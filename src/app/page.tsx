@@ -11,8 +11,8 @@ function ScrambleNumber({ value, prefix = "$" }: { value: number; prefix?: strin
   
   useEffect(() => {
     const targetValue = value.toFixed(2);
-    const duration = 2000; // 2 seconds
-    const scrambleDuration = 1500; // Scramble for 1.5 seconds
+    const duration = 3000; // 3 seconds total
+    const scrambleDuration = 2200; // Scramble for 2.2 seconds
     const startTime = Date.now();
     
     const scrambleChars = "0123456789";
