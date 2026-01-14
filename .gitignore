@@ -1,0 +1,57 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env*.local
+.env
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Uploads
+/uploads/
+
+# IDE
+.idea/
+.vscode/
+
+# Test files with secrets - NEVER COMMIT PRIVATE KEYS
+scripts/test-keypairs.json
+scripts/test-keypairs-safe.json
+scripts/test-*.js
+scripts/test-*.ts
+
+# x402 stress test keypairs - NEVER COMMIT PRIVATE KEYS
+scripts/x402-stress-keypairs.json
+scripts/x402-stress-addresses.txt
+scripts/x402-100-keypairs.json
+scripts/x402-50-keypairs.json
+
+# MCP Plugin (separate repository)
+/bread-mcp/

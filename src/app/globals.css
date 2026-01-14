@@ -1,0 +1,501 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0D0D0F;
+  --foreground: #FFFFFF;
+  --primary: #02FF40;
+  --surface: #1A1A1C;
+  --surface-light: #262629;
+  --muted: #6b6b6b;
+  --muted-light: #9a9a9a;
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  color: var(--foreground);
+  background: var(--background);
+  font-weight: 400;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+/* ============================================
+   BAGS.FM STYLE COMPONENTS
+   ============================================ */
+
+/* Scrolling ticker */
+.ticker-container {
+  overflow: hidden;
+  background: #0D0D0F;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ticker-content {
+  display: flex;
+  animation: ticker-scroll 40s linear infinite;
+}
+
+.ticker-content:hover {
+  animation-play-state: paused;
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Card - minimal bags.fm style */
+.card {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  transition: all 0.15s ease;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Row item - bags.fm table row style */
+.row-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.15s ease;
+}
+
+.row-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.row-item:last-child {
+  border-bottom: none;
+}
+
+/* Primary button - bags.fm green */
+.btn-primary {
+  background: var(--primary);
+  color: #000000;
+  border: none;
+  border-radius: 9999px;
+  font-weight: 600;
+  padding: 10px 20px;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #00e63e;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Secondary button - bags.fm white outline */
+.btn-secondary {
+  background: transparent;
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  font-weight: 500;
+  padding: 10px 20px;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Search input - bags.fm style */
+.search-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  color: #FFFFFF;
+  padding: 10px 16px;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+}
+
+.search-input:focus {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Form input - bags.fm style */
+.form-input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #FFFFFF;
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  outline: none;
+  width: 100%;
+}
+
+.form-input::placeholder {
+  color: var(--muted);
+}
+
+.form-input:focus {
+  border-color: var(--primary);
+}
+
+/* Tab navigation - bags.fm style */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.tab-item {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.tab-item:hover {
+  color: #FFFFFF;
+}
+
+.tab-item.active {
+  background: var(--primary);
+  color: #000000;
+}
+
+/* Sidebar nav - bags.fm how-it-works style */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-nav-item {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--muted-light);
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+
+.sidebar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: #FFFFFF;
+}
+
+.sidebar-nav-item.active {
+  background: var(--primary);
+  color: #000000;
+  font-weight: 500;
+}
+
+/* Stats badge - bags.fm style */
+.stats-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 255, 71, 0.1);
+  border: 1px solid rgba(0, 255, 71, 0.2);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+/* Step number - bags.fm style */
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+/* Custom scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #333333 transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #333333;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #444444;
+}
+
+/* ============================================
+   WALLET ADAPTER OVERRIDES
+   ============================================ */
+
+/* Main wallet button */
+.wallet-adapter-button {
+  background: var(--primary) !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+  height: 40px !important;
+  padding: 0 20px !important;
+  color: #000000 !important;
+  transition: all 0.15s ease !important;
+}
+
+.wallet-adapter-button:hover {
+  background: #00e63e !important;
+}
+
+/* Modal overlay */
+.wallet-adapter-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Modal container */
+.wallet-adapter-modal-container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Modal wrapper */
+.wallet-adapter-modal-wrapper {
+  background: #1A1A1C !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8) !important;
+  max-width: 400px !important;
+  width: calc(100vw - 32px) !important;
+  padding: 24px !important;
+  position: relative !important;
+}
+
+.wallet-adapter-modal-overlay {
+  display: none !important;
+}
+
+.wallet-adapter-modal-container::before,
+.wallet-adapter-modal-wrapper::before {
+  display: none !important;
+}
+
+/* Modal title */
+.wallet-adapter-modal-title {
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  font-size: 1.125rem !important;
+  text-align: center !important;
+  margin-bottom: 20px !important;
+  padding: 0 !important;
+}
+
+/* Close button */
+.wallet-adapter-modal-button-close {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  top: 16px !important;
+  right: 16px !important;
+  transition: all 0.15s ease !important;
+}
+
+.wallet-adapter-modal-button-close:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.wallet-adapter-modal-button-close svg {
+  fill: #FFFFFF !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+/* Wallet list */
+.wallet-adapter-modal-list {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+.wallet-adapter-modal-list li {
+  margin: 0 0 8px 0 !important;
+}
+
+.wallet-adapter-modal-list li:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Wallet buttons in modal */
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  color: #FFFFFF !important;
+  height: 54px !important;
+  padding: 0 16px !important;
+  width: 100% !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  transition: all 0.15s ease !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:active {
+  transform: scale(0.99) !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button-end-icon {
+  margin-left: auto !important;
+}
+
+/* Wallet icons */
+.wallet-adapter-modal-list .wallet-adapter-button img,
+.wallet-adapter-modal-list .wallet-adapter-button-start-icon img {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+}
+
+/* Detected badge */
+.wallet-adapter-modal-list .wallet-adapter-button span:last-child:not(:first-child) {
+  margin-left: auto !important;
+  font-size: 11px !important;
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+  background: rgba(0, 255, 71, 0.1) !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  border: 1px solid rgba(0, 255, 71, 0.2) !important;
+}
+
+/* Collapse button */
+.wallet-adapter-modal-collapse-button {
+  background: transparent !important;
+  color: var(--muted) !important;
+  border: none !important;
+  padding: 12px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.wallet-adapter-modal-collapse-button:hover {
+  color: #FFFFFF !important;
+}
+
+.wallet-adapter-modal-collapse-button svg {
+  fill: currentColor !important;
+}
+
+/* Middle section */
+.wallet-adapter-modal-middle {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  padding: 16px !important;
+  margin: 12px 0 !important;
+}
+
+.wallet-adapter-modal-middle-button {
+  background: var(--primary) !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  color: #000000 !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  transition: all 0.15s ease !important;
+}
+
+.wallet-adapter-modal-middle-button:hover {
+  background: #00e63e !important;
+}
+
+/* More options link */
+.wallet-adapter-modal-list-more {
+  margin-top: 12px !important;
+  color: var(--muted) !important;
+}
+
+.wallet-adapter-modal-list-more:hover {
+  color: #FFFFFF !important;
+}

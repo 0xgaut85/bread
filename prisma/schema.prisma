@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  walletAddress String   @unique
+  name          String?
+  bio           String?
+  xHandle       String?
+  avatarUrl     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tasksCreated Task[]
+  submissions  Submission[]
+}
+
+model Task {
+  id             String         @id @default(cuid())
+  title          String
+  description    String         @db.Text
+  type           TaskType       @default(CUSTOM)
+  category       Category
+  submissionType SubmissionType
+  reward         Float
+  deadline       DateTime
+  status         TaskStatus     @default(OPEN)
+  escrowTxId     String?
+
+  creatorId   String
+  creator     User                @relation(fields: [creatorId], references: [id])
+  submissions Submission[]
+  escrowTx    EscrowTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([deadline])
+}
+
+model Submission {
+  id          String         @id @default(cuid())
+  content     String         @db.Text
+  type        SubmissionType
+  score       Int?
+  isWinner    Boolean        @default(false)
+  aiReasoning String?        @db.Text
+
+  taskId      String
+  task        Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  submitterId String
+  submitter   User   @relation(fields: [submitterId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([taskId, submitterId])
+  @@index([taskId])
+  @@index([submitterId])
+}
+
+model EscrowTransaction {
+  id          String   @id @default(cuid())
+  type        EscrowType
+  amount      Float
+  fromWallet  String
+  toWallet    String
+  status      TxStatus @default(PENDING)
+  txSignature String?
+
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+}
+
+// Nonce storage for wallet signature authentication (AI agents)
+model Nonce {
+  id            String   @id @default(cuid())
+  walletAddress String   @unique
+  nonce         String
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+
+  @@index([walletAddress])
+  @@index([expiresAt])
+}
+
+enum TaskType {
+  DAILY
+  CUSTOM
+}
+
+enum Category {
+  THREAD
+  MEME
+  LOGO
+  DESIGN
+  UI_UX
+  ARTICLE
+  DOCUMENTATION
+  CODE
+  APP
+  SMART_CONTRACT
+  MARKETING
+  VIDEO
+  OTHER
+}
+
+enum SubmissionType {
+  LINK
+  IMAGE
+  TEXT
+}
+
+enum TaskStatus {
+  OPEN
+  JUDGING
+  PAYMENT_PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum EscrowType {
+  LOCK
+  RELEASE
+}
+
+enum TxStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}

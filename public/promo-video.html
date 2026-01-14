@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bread - Promo Video</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #0D0D0F;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    /* Recording frame */
+    .video-frame {
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      overflow: hidden;
+      background: #0D0D0F;
+    }
+
+
+    /* ==================== SCENE TRANSITIONS ==================== */
+    @keyframes sceneOut {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-30px); }
+    }
+
+    @keyframes sceneIn {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== LOGO SECTION ==================== */
+    .logo-section {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+    }
+
+    .logo-section.active {
+      animation: logoFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .logo-section.exit {
+      animation: sceneOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes logoFadeIn {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .logo {
+      width: 200px;
+      height: 200px;
+      opacity: 0;
+      transform: scale(0.8) rotate(-10deg);
+    }
+
+    .logo-section.active .logo {
+      animation: logoIconIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
+    }
+
+    @keyframes logoIconIn {
+      0% { opacity: 0; transform: scale(0.8) rotate(-10deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 24px;
+    }
+
+    .brand-name {
+      font-size: 100px;
+      font-weight: 700;
+      letter-spacing: -4px;
+      color: #FFFFFF;
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    .logo-section.active .brand-name {
+      animation: brandNameIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+    }
+
+    @keyframes brandNameIn {
+      0% { opacity: 0; transform: translateX(-30px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+
+    /* ==================== WIPE TRANSITION ==================== */
+    .wipe-transition {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #02FF40 0%, #00D935 50%, #02FF40 100%);
+      z-index: 80;
+      transform: scaleX(0);
+      transform-origin: left;
+      pointer-events: none;
+    }
+
+    .wipe-transition.active {
+      animation: wipeIn 0.7s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+    }
+
+    @keyframes wipeIn {
+      0% { transform: scaleX(0); transform-origin: left; }
+      50% { transform: scaleX(1); transform-origin: left; }
+      50.01% { transform: scaleX(1); transform-origin: right; }
+      100% { transform: scaleX(0); transform-origin: right; }
+    }
+
+    /* ==================== TAGLINE SECTION ==================== */
+    .tagline-section {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .tagline-section.active {
+      animation: sceneIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      pointer-events: auto;
+    }
+
+    .tagline-section.exit {
+      animation: sceneOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .tagline-top {
+      font-size: 36px;
+      font-weight: 500;
+      color: #666666;
+      letter-spacing: 2px;
+      text-transform: lowercase;
+      margin-bottom: 32px;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .tagline-section.active .tagline-top {
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tagline-word-container {
+      position: relative;
+      height: 140px;
+      min-width: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tagline-word {
+      position: absolute;
+      font-size: 120px;
+      font-weight: 700;
+      color: #02FF40;
+      letter-spacing: -4px;
+      opacity: 0;
+      transform: scale(0.3) translateY(60px);
+    }
+
+    .tagline-word.active {
+      animation: wordBounceIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .tagline-word.exit {
+      animation: wordBounceOut 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
+    }
+
+    @keyframes wordBounceIn {
+      0% { 
+        opacity: 0; 
+        transform: scale(0.3) translateY(60px);
+        filter: blur(10px);
+      }
+      60% {
+        opacity: 1;
+        transform: scale(1.1) translateY(-10px);
+        filter: blur(0);
+      }
+      100% { 
+        opacity: 1; 
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes wordBounceOut {
+      0% { 
+        opacity: 1; 
+        transform: scale(1) translateY(0);
+      }
+      100% { 
+        opacity: 0; 
+        transform: scale(0.8) translateY(-40px);
+        filter: blur(5px);
+      }
+    }
+
+    /* ==================== BUILT FOR SECTION ==================== */
+    .builtfor-section {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .builtfor-section.active {
+      animation: sceneIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      pointer-events: auto;
+    }
+
+    .builtfor-section.exit {
+      animation: sceneOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .builtfor-text {
+      font-size: 80px;
+      font-weight: 600;
+      color: #FFFFFF;
+      letter-spacing: -2px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .builtfor-word-container {
+      position: relative;
+      min-width: 420px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .builtfor-word {
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+      color: #02FF40;
+      opacity: 0;
+      transform: scale(0.3) translateY(60px);
+      white-space: nowrap;
+    }
+
+    .builtfor-word.active {
+      animation: builtforWordIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .builtfor-word.exit {
+      animation: builtforWordOut 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
+    }
+
+    @keyframes builtforWordIn {
+      0% { 
+        opacity: 0; 
+        transform: scale(0.3) translateY(60px);
+        filter: blur(10px);
+      }
+      60% {
+        opacity: 1;
+        transform: scale(1.1) translateY(-10px);
+        filter: blur(0);
+      }
+      100% { 
+        opacity: 1; 
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes builtforWordOut {
+      0% { 
+        opacity: 1; 
+        transform: scale(1) translateY(0);
+      }
+      100% { 
+        opacity: 0; 
+        transform: scale(0.8) translateY(-40px);
+        filter: blur(5px);
+      }
+    }
+
+    /* ==================== ENDING SECTION ==================== */
+    .ending-section {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 60;
+    }
+
+    .ending-section.active {
+      animation: sceneIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      pointer-events: auto;
+    }
+
+    /* URL box - pill button with green border */
+    .url-box {
+      position: relative;
+      padding: 32px 64px;
+      border-radius: 9999px;
+      background: #0D0D0F;
+      border: 3px solid #02FF40;
+      transition: transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .url-box.clicked {
+      transform: scale(0.96);
+    }
+
+    .typed-url {
+      font-size: 60px;
+      font-weight: 600;
+      color: #FFFFFF;
+      letter-spacing: 1px;
+    }
+
+    /* Mouse cursor */
+    .mouse-cursor {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      opacity: 0;
+      z-index: 200;
+      pointer-events: none;
+      top: 50%;
+      left: 50%;
+    }
+
+    .mouse-cursor svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    }
+
+    .mouse-cursor.visible {
+      opacity: 1;
+      transform: translate(300px, 200px);
+      transition: opacity 0.4s ease-out;
+    }
+
+    .mouse-cursor.move-to-box {
+      opacity: 1;
+      transform: translate(50px, 20px);
+      transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .mouse-cursor.click {
+      opacity: 1;
+      transform: translate(50px, 20px) scale(0.8);
+      transition: transform 0.1s ease-out;
+    }
+
+    .mouse-cursor.click-release {
+      opacity: 1;
+      transform: translate(50px, 20px) scale(1);
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Replay button */
+    .replay-btn {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      padding: 14px 28px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #888888;
+      background: transparent;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+      cursor: pointer;
+      opacity: 0;
+      z-index: 101;
+      transition: all 0.2s ease;
+    }
+
+    .replay-btn.visible {
+      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .replay-btn:hover {
+      background: rgba(2, 255, 64, 0.1);
+      border-color: #02FF40;
+      color: #02FF40;
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="video-frame">
+    <!-- Logo Section -->
+    <div class="logo-section">
+      <div class="logo-container">
+        <div class="logo">
+          <img src="logo.png" alt="Bread" />
+        </div>
+        <div class="brand-name">bread</div>
+      </div>
+    </div>
+
+    <!-- Wipe Transition -->
+    <div class="wipe-transition"></div>
+
+    <!-- Tagline Section -->
+    <div class="tagline-section">
+      <div class="tagline-top">the work primitive for</div>
+      <div class="tagline-word-container">
+        <span class="tagline-word" data-word="0">humans</span>
+        <span class="tagline-word" data-word="1">AI agents</span>
+        <span class="tagline-word" data-word="2">everyone</span>
+      </div>
+    </div>
+
+    <!-- Built For Section -->
+    <div class="builtfor-section">
+      <div class="builtfor-text">
+        <span>earn</span>
+        <div class="builtfor-word-container">
+          <span class="builtfor-word" data-word="0">anywhere</span>
+          <span class="builtfor-word" data-word="1">anytime</span>
+          <span class="builtfor-word" data-word="2">globally</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ending with typed URL -->
+    <div class="ending-section">
+      <div class="url-box">
+        <div class="typed-url">
+          <span class="typed-text"></span>
+        </div>
+      </div>
+      <div class="mouse-cursor">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 2L4 20L8.5 15.5L12 22L14 21L10.5 14.5L17 14.5L4 2Z" fill="#FFFFFF"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Replay button -->
+    <button class="replay-btn" onclick="location.reload()">↻ Replay</button>
+  </div>
+
+  <script>
+    // ==================== TYPING SOUND ====================
+    const typingSound = new Audio('stroke2.mp3');
+    typingSound.volume = 0.4;
+    typingSound.loop = true;
+    
+    function startTypingSound(speed) {
+      typingSound.playbackRate = speed === 'fast' ? 1.3 : 0.9;
+      typingSound.currentTime = 0;
+      typingSound.play().catch(e => console.log('Audio error:', e));
+    }
+    
+    function stopTypingSound() {
+      typingSound.pause();
+    }
+
+    // ==================== SWIPE SOUND ====================
+    const swipeSound = new Audio('swipe.mp3');
+    swipeSound.volume = 0.5;
+    
+    function playSwipeSound() {
+      swipeSound.currentTime = 0;
+      swipeSound.play().catch(e => console.log('Swipe audio error:', e));
+    }
+
+    // ==================== CLICK SOUND ====================
+    const clickSound = new Audio('click.mp3');
+    clickSound.volume = 0.5;
+    
+    function playClickSound() {
+      clickSound.currentTime = 0;
+      clickSound.play().catch(e => console.log('Click audio error:', e));
+    }
+
+    // ==================== TIMING CONFIGURATION ====================
+    const TIMINGS = {
+      logoIn: 100,
+      logoOut: 3000,
+      taglineWords: [4000, 5600, 7200],
+      taglineOut: 8800,
+      builtforIn: 9200,
+      builtforWords: [9700, 11000, 12300],
+      builtforOut: 13200,
+      endingIn: 13600,
+      typingStart: 14600
+    };
+
+    // ==================== LOGO SECTION ====================
+    const logoSection = document.querySelector('.logo-section');
+    const wipeTransition = document.querySelector('.wipe-transition');
+    
+    setTimeout(() => {
+      logoSection.classList.add('active');
+    }, TIMINGS.logoIn);
+    
+    setTimeout(() => {
+      logoSection.classList.remove('active');
+      logoSection.classList.add('exit');
+      wipeTransition.classList.add('active');
+    }, TIMINGS.logoOut);
+
+    // ==================== TAGLINE SECTION ====================
+    const taglineSection = document.querySelector('.tagline-section');
+    const taglineWords = document.querySelectorAll('.tagline-section .tagline-word');
+    
+    setTimeout(() => {
+      taglineSection.classList.add('active');
+    }, TIMINGS.logoOut + 400);
+    
+    TIMINGS.taglineWords.forEach((time, index) => {
+      setTimeout(() => {
+        if (index > 0) {
+          taglineWords[index - 1].classList.remove('active');
+          taglineWords[index - 1].classList.add('exit');
+        }
+        setTimeout(() => {
+          taglineWords[index].classList.add('active');
+          playSwipeSound();
+        }, index > 0 ? 350 : 0);
+      }, time);
+    });
+    
+    setTimeout(() => {
+      taglineSection.classList.remove('active');
+      taglineSection.classList.add('exit');
+    }, TIMINGS.taglineOut);
+
+    // ==================== BUILT FOR SECTION ====================
+    const builtforSection = document.querySelector('.builtfor-section');
+    const builtforWords = document.querySelectorAll('.builtfor-section .builtfor-word');
+    
+    setTimeout(() => {
+      builtforSection.classList.add('active');
+    }, TIMINGS.builtforIn);
+    
+    TIMINGS.builtforWords.forEach((time, index) => {
+      setTimeout(() => {
+        if (index > 0) {
+          builtforWords[index - 1].classList.remove('active');
+          builtforWords[index - 1].classList.add('exit');
+        }
+        setTimeout(() => {
+          builtforWords[index].classList.add('active');
+          playSwipeSound();
+        }, index > 0 ? 350 : 0);
+      }, time);
+    });
+    
+    setTimeout(() => {
+      builtforWords[builtforWords.length - 1].classList.remove('active');
+      builtforWords[builtforWords.length - 1].classList.add('exit');
+      builtforSection.classList.remove('active');
+      builtforSection.classList.add('exit');
+    }, TIMINGS.builtforOut);
+
+    // ==================== ENDING SECTION ====================
+    const endingSection = document.querySelector('.ending-section');
+    const typedText = document.querySelector('.typed-text');
+    const urlBox = document.querySelector('.url-box');
+    const mouseCursor = document.querySelector('.mouse-cursor');
+    const replayBtn = document.querySelector('.replay-btn');
+    const urlToType = 'bread.markets';
+
+    setTimeout(() => {
+      endingSection.classList.add('active');
+    }, TIMINGS.endingIn);
+
+    setTimeout(() => {
+      typeText(urlToType, typedText, () => {
+        setTimeout(() => {
+          mouseCursor.classList.add('visible');
+        }, 400);
+        
+        setTimeout(() => {
+          mouseCursor.classList.remove('visible');
+          mouseCursor.classList.add('move-to-box');
+        }, 800);
+        
+        setTimeout(() => {
+          mouseCursor.classList.remove('move-to-box');
+          mouseCursor.classList.add('click');
+          urlBox.classList.add('clicked');
+          playClickSound();
+        }, 2000);
+        
+        setTimeout(() => {
+          mouseCursor.classList.remove('click');
+          mouseCursor.classList.add('click-release');
+          urlBox.classList.remove('clicked');
+        }, 2200);
+        
+        setTimeout(() => {
+          replayBtn.classList.add('visible');
+        }, 2800);
+      });
+    }, TIMINGS.typingStart);
+
+    function typeText(text, element, callback) {
+      let index = 0;
+      
+      startTypingSound('slow');
+      
+      function typeChar() {
+        if (index < text.length) {
+          element.textContent += text[index];
+          index++;
+          
+          let delay = 60 + Math.random() * 80;
+          
+          if (Math.random() < 0.1) {
+            delay += 80 + Math.random() * 120;
+          }
+          
+          if (index > 1 && (text[index - 1] === '.' || text[index - 1] === 'o' || text[index - 1] === 'n')) {
+            delay *= 0.75;
+          }
+          
+          setTimeout(typeChar, delay);
+        } else {
+          stopTypingSound();
+          if (callback) callback();
+        }
+      }
+      
+      setTimeout(typeChar, 400);
+    }
+  </script>
+</body>
+</html>
