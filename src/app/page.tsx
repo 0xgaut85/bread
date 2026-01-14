@@ -186,138 +186,168 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Main Content - Split Layout */}
-      <main className="flex-1 pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-[calc(100vh-200px)]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 h-full">
-            {/* Left Side - Task Table */}
-            <div className="flex flex-col py-4 lg:pr-8 lg:border-r lg:border-white/10">
-              {/* Table Header */}
-              <div className="hidden sm:grid grid-cols-12 gap-2 px-4 py-3 text-xs text-muted uppercase tracking-wider border-b border-white/10">
-                <div className="col-span-1">#</div>
-                <div className="col-span-4">Task</div>
-                <div className="col-span-2">Creator</div>
-                <div className="col-span-2 text-right">Submissions</div>
-                <div className="col-span-2 text-right">Deadline</div>
-                <div className="col-span-1 text-right">Reward</div>
-              </div>
-
-              {/* Task Rows */}
-              {isLoading ? (
-                <div className="flex items-center justify-center py-20 flex-1">
-                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : data.tasks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 flex-1">
-                  <p className="text-muted mb-4">No tasks yet</p>
-                  <Link href="/tasks/create">
-                    <button className="btn-primary">Create the first one</button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="divide-y divide-white/5 flex-1">
-                  {data.tasks.map((task, index) => (
-                    <Link
-                      key={task.id}
-                      href={`/tasks/${task.id}`}
-                      className="grid grid-cols-12 gap-2 px-4 py-4 items-center hover:bg-white/[0.02] transition-colors"
-                    >
-                      {/* Rank */}
-                      <div className="col-span-1 text-muted text-sm">
-                        {index + 1}
-                      </div>
-
-                      {/* Task Info */}
-                      <div className="col-span-11 sm:col-span-4">
-                        <div className="flex items-center gap-3">
-                          {task.creator.avatarUrl ? (
-                            <img
-                              src={task.creator.avatarUrl}
-                              alt=""
-                              className="w-8 h-8 rounded-full shrink-0"
-                            />
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs text-white font-medium shrink-0">
-                              {(task.creator.name || task.creator.walletAddress)[0].toUpperCase()}
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <p className="text-white font-medium text-sm truncate">
-                              {task.title}
-                            </p>
-                            <p className="text-muted text-xs truncate sm:hidden">
-                              {task.creator.name || truncateAddress(task.creator.walletAddress)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Creator - Desktop */}
-                      <div className="hidden sm:block col-span-2">
-                        <span className="text-muted-light text-sm truncate">
-                          {task.creator.name || truncateAddress(task.creator.walletAddress)}
-                        </span>
-                      </div>
-
-                      {/* Submissions - Desktop */}
-                      <div className="hidden sm:block col-span-2 text-right">
-                        <span className="text-muted-light text-sm">
-                          {task._count.submissions}
-                        </span>
-                      </div>
-
-                      {/* Deadline - Desktop */}
-                      <div className="hidden sm:block col-span-2 text-right">
-                        <span className="text-muted text-sm">
-                          {formatRelativeTime(task.deadline)}
-                        </span>
-                      </div>
-
-                      {/* Reward - Desktop */}
-                      <div className="hidden sm:block col-span-1 text-right">
-                        <span className="text-primary font-semibold text-sm">
-                          ${formatUsdc(task.reward)}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-
-              {/* View All Link */}
-              {data.tasks.length > 0 && (
-                <div className="text-center py-4">
-                  <Link
-                    href="/tasks"
-                    className="text-sm text-muted hover:text-white transition-colors"
-                  >
-                    View all tasks →
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Horizontal Separator for Mobile */}
-            <div className="lg:hidden w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
-
-            {/* Right Side - Welcome & Rewards */}
-            <div className="flex flex-col justify-center items-center lg:items-start text-center lg:text-left py-4 lg:pl-12">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
+      {/* Main Content */}
+      <main className="flex-1 pt-28 sm:pt-32">
+        {/* Hero Section - Full Width */}
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Hero Content */}
+            <div className="text-center py-12 sm:py-16 lg:py-20">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 tracking-tight leading-none">
                 welcome to bread
               </h1>
-              <p className="text-lg sm:text-xl text-muted-light max-w-md mb-12">
+              <p className="text-xl sm:text-2xl text-muted-light max-w-2xl mx-auto mb-10">
                 complete tasks, earn USDC, and stack bread.
               </p>
-
-              {/* Rewards Section */}
-              <div className="mt-auto">
-                <p className="text-sm text-muted uppercase tracking-wider mb-2">
+              
+              {/* Rewards Display - Prominent */}
+              <div className="mb-12">
+                <p className="text-sm sm:text-base text-muted uppercase tracking-widest mb-3">
                   rewards available
                 </p>
-                <div className="text-5xl sm:text-6xl lg:text-7xl font-bold text-primary tabular-nums">
+                <div className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-primary tabular-nums leading-none">
                   <ScrambleNumber value={data.stats.totalRewards} />
                 </div>
-                <p className="text-muted-light mt-2">USDC</p>
+                <p className="text-muted-light text-lg mt-3">USDC</p>
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link href="/tasks">
+                  <button className="px-8 py-4 bg-primary text-black font-semibold text-lg rounded-full hover:bg-[#00e63e] transition-colors">
+                    Browse Tasks
+                  </button>
+                </Link>
+                <Link href="/tasks/create">
+                  <button className="px-8 py-4 bg-white/5 border border-white/10 text-white font-semibold text-lg rounded-full hover:bg-white/10 transition-colors">
+                    Create Task
+                  </button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 py-8 border-t border-white/5">
+              <div className="text-center p-4">
+                <p className="text-3xl sm:text-4xl font-bold text-white">{data.stats.openTasks}</p>
+                <p className="text-sm text-muted mt-1">Open Tasks</p>
+              </div>
+              <div className="text-center p-4">
+                <p className="text-3xl sm:text-4xl font-bold text-white">{data.stats.totalSubmissions}</p>
+                <p className="text-sm text-muted mt-1">Submissions</p>
+              </div>
+              <div className="text-center p-4">
+                <p className="text-3xl sm:text-4xl font-bold text-primary">${formatUsdc(data.stats.totalRewards)}</p>
+                <p className="text-sm text-muted mt-1">Total Rewards</p>
+              </div>
+              <div className="text-center p-4">
+                <p className="text-3xl sm:text-4xl font-bold text-white">{data.tasks.length}</p>
+                <p className="text-sm text-muted mt-1">Active</p>
+              </div>
+            </div>
+
+            {/* Task List Section */}
+            <div className="py-8 sm:py-12">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white">Latest Tasks</h2>
+                <Link href="/tasks" className="text-primary hover:text-[#00e63e] transition-colors text-sm sm:text-base">
+                  View all →
+                </Link>
+              </div>
+
+              {/* Task Table */}
+              <div className="border border-white/10 rounded-xl overflow-hidden">
+                {/* Table Header */}
+                <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 text-xs text-muted uppercase tracking-wider bg-white/[0.02] border-b border-white/5">
+                  <div className="col-span-1">#</div>
+                  <div className="col-span-4">Task</div>
+                  <div className="col-span-2">Creator</div>
+                  <div className="col-span-2 text-right">Submissions</div>
+                  <div className="col-span-2 text-right">Deadline</div>
+                  <div className="col-span-1 text-right">Reward</div>
+                </div>
+
+                {/* Task Rows */}
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : data.tasks.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <p className="text-muted text-lg mb-4">No tasks yet</p>
+                    <Link href="/tasks/create">
+                      <button className="btn-primary">Create the first one</button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-white/5">
+                    {data.tasks.slice(0, 8).map((task, index) => (
+                      <Link
+                        key={task.id}
+                        href={`/tasks/${task.id}`}
+                        className="grid grid-cols-12 gap-4 px-4 sm:px-6 py-5 items-center hover:bg-white/[0.02] transition-colors"
+                      >
+                        {/* Rank */}
+                        <div className="col-span-1 text-muted text-base font-medium">
+                          {index + 1}
+                        </div>
+
+                        {/* Task Info */}
+                        <div className="col-span-11 sm:col-span-4">
+                          <div className="flex items-center gap-4">
+                            {task.creator.avatarUrl ? (
+                              <img
+                                src={task.creator.avatarUrl}
+                                alt=""
+                                className="w-10 h-10 rounded-full shrink-0"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-sm text-white font-medium shrink-0">
+                                {(task.creator.name || task.creator.walletAddress)[0].toUpperCase()}
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="text-white font-medium text-base truncate">
+                                {task.title}
+                              </p>
+                              <p className="text-muted text-sm truncate sm:hidden">
+                                {task.creator.name || truncateAddress(task.creator.walletAddress)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Creator - Desktop */}
+                        <div className="hidden sm:block col-span-2">
+                          <span className="text-muted-light text-sm truncate">
+                            {task.creator.name || truncateAddress(task.creator.walletAddress)}
+                          </span>
+                        </div>
+
+                        {/* Submissions - Desktop */}
+                        <div className="hidden sm:block col-span-2 text-right">
+                          <span className="text-muted-light text-base">
+                            {task._count.submissions}
+                          </span>
+                        </div>
+
+                        {/* Deadline - Desktop */}
+                        <div className="hidden sm:block col-span-2 text-right">
+                          <span className="text-muted text-sm">
+                            {formatRelativeTime(task.deadline)}
+                          </span>
+                        </div>
+
+                        {/* Reward - Desktop */}
+                        <div className="hidden sm:block col-span-1 text-right">
+                          <span className="text-primary font-bold text-base">
+                            ${formatUsdc(task.reward)}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

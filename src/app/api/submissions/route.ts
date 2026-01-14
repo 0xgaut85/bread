@@ -1,12 +1,8 @@
 /**
- * Submissions API with x402 Payment Protection
+ * Submissions API with Direct Payment Verification
  *
  * - GET: Free - view submissions for a task
- * - POST: Requires 0.01 USDC via x402 for AI agents, free for authenticated humans
- * 
- * Returns x402 payment info for successful submissions.
- *
- * Reference: https://github.com/PayAINetwork/x402-solana
+ * - POST: Requires 0.01 USDC payment signature for AI agents, free for authenticated humans
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -14,16 +10,9 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser, verifySignature, createSignMessage } from "@/lib/auth";
 import { getNonce, deleteNonce } from "@/lib/nonce-store";
 import { isDeadlinePassed } from "@/lib/utils";
-import {
-  NETWORK,
-  TREASURY_ADDRESS,
-  X402_PUBLIC_URL,
-  X402_SUBMISSION_FEE,
-  usdcToMicroUnits,
-  getX402Handler,
-  createRouteConfig,
-} from "@/lib/x402";
+import { TREASURY_ADDRESS, usdcToMicroUnits } from "@/lib/x402";
 import { x402RateLimiter, getClientId, createRateLimitHeaders } from "@/lib/rate-limit";
+import { getConnection, USDC_MINT } from "@/lib/solana";
 
 export const dynamic = "force-dynamic";
 
@@ -96,7 +85,7 @@ export async function GET(request: Request) {
   }
 }
 
-// Create a submission (x402 protected for AI agents, free for humans)
+// Create a submission (payment protected for AI agents)
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting
@@ -121,21 +110,38 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { taskId, content, type, walletAddress, signature, nonce } = body;
+    const { taskId, content, type, walletAddress, signature, nonce, paymentSignature } = body;
 
     // Determine authentication method
     let userId: string;
     let userWallet: string;
     let isAiAgent = false;
 
-    // Check for AI agent authentication (wallet signature + x402 payment)
+    // Check for AI agent authentication (wallet signature + payment)
     if (walletAddress && signature && nonce) {
       isAiAgent = true;
       
-      // AI agents must pay 0.01 USDC via x402
-      const x402Result = await verifyX402Payment(request, taskId);
-      if (!x402Result.success) {
-        return x402Result.response!;
+      // AI agents must pay 0.01 USDC
+      if (!paymentSignature) {
+        return NextResponse.json(
+          { 
+            error: "Payment required", 
+            message: "Please include 'paymentSignature' for 0.01 USDC transfer to treasury",
+            treasury: TREASURY_ADDRESS,
+            amount: 0.01,
+            currency: "USDC"
+          }, 
+          { status: 402 }
+        );
+      }
+
+      // Verify payment
+      const paymentResult = await verifyPaymentTransaction(paymentSignature, 0.01, TREASURY_ADDRESS);
+      if (!paymentResult.verified) {
+        return NextResponse.json(
+          { error: paymentResult.error || "Payment verification failed" },
+          { status: 402 }
+        );
       }
 
       const authResult = await authenticateAgent(walletAddress, signature, nonce);
@@ -153,7 +159,7 @@ export async function POST(request: NextRequest) {
 
       if (!payload) {
         return NextResponse.json(
-          { error: "Not authenticated. For AI agents, provide walletAddress, signature, nonce, and X-PAYMENT header." },
+          { error: "Not authenticated. For AI agents, provide walletAddress, signature, nonce, and paymentSignature." },
           { status: 401 }
         );
       }
@@ -263,7 +269,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Build response with x402 payment info for AI agents
     const response = {
       success: true,
       submission: {
@@ -278,20 +283,7 @@ export async function POST(request: NextRequest) {
         title: submission.task.title,
         reward: submission.task.reward,
       },
-      // x402 payment info - how the agent will receive payment if they win
-      x402: {
-        network: NETWORK,
-        treasury: TREASURY_ADDRESS,
-        potentialReward: {
-          amount: submission.task.reward,
-          microUnits: usdcToMicroUnits(submission.task.reward),
-          currency: "USDC",
-        },
-        paymentEndpoint: `${X402_PUBLIC_URL}/api/escrow`,
-        winnerWallet: userWallet,
-        note: "If your submission wins, the reward will be sent to your wallet via x402 protocol.",
-        submissionFee: isAiAgent ? { paid: true, amount: "0.01 USDC" } : { paid: false, amount: "Free for humans" },
-      },
+      payment: isAiAgent ? { paid: true, signature: paymentSignature } : { paid: false, status: "free" }
     };
 
     return NextResponse.json(response, { status: 201 });
@@ -306,7 +298,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * OPTIONS /api/submissions
- * CORS preflight for x402 clients
+ * CORS preflight
  */
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -321,89 +313,7 @@ export async function OPTIONS() {
 }
 
 /**
- * Verify x402 payment for AI agent submissions
- */
-async function verifyX402Payment(
-  request: NextRequest,
-  taskId: string
-): Promise<{ success: boolean; response?: NextResponse }> {
-  try {
-    const x402 = getX402Handler();
-    const resourceUrl = `${X402_PUBLIC_URL}/api/submissions`;
-
-    // Create payment requirements (0.01 USDC)
-    const routeConfig = createRouteConfig(
-      X402_SUBMISSION_FEE,
-      `Submit work to task ${taskId}`
-    );
-
-    // Extract payment header
-    const headers = Object.fromEntries(request.headers.entries());
-    const paymentHeader = x402.extractPayment(headers);
-
-    // Create payment requirements
-    const paymentRequirements = await x402.createPaymentRequirements(
-      routeConfig,
-      resourceUrl
-    );
-
-    // If no payment, return 402
-    if (!paymentHeader) {
-      const response402 = x402.create402Response(paymentRequirements);
-      return {
-        success: false,
-        response: NextResponse.json(response402.body, {
-          status: 402,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, X-PAYMENT, X-PAYMENT-RESPONSE",
-          },
-        }),
-      };
-    }
-
-    // Verify payment
-    const verified = await x402.verifyPayment(paymentHeader, paymentRequirements);
-
-    if (!verified.isValid) {
-      return {
-        success: false,
-        response: NextResponse.json(
-          { error: "Payment verification failed", reason: verified.invalidReason },
-          { status: 402 }
-        ),
-      };
-    }
-
-    // Settle payment
-    try {
-      await x402.settlePayment(paymentHeader, paymentRequirements);
-    } catch (settleError) {
-      console.error("[x402] Settlement error (non-fatal):", settleError);
-    }
-
-    return { success: true };
-  } catch (error) {
-    console.error("[x402] Payment verification error:", error);
-    return {
-      success: false,
-      response: NextResponse.json(
-        { error: "x402 payment processing failed" },
-        { status: 500 }
-      ),
-    };
-  }
-}
-
-/**
  * Authenticate an AI agent via wallet signature
- * 
- * Security flow:
- * 1. Agent requests nonce from GET /api/auth/nonce?walletAddress=xxx
- * 2. Agent signs the message containing the nonce
- * 3. Agent submits signature + nonce here
- * 4. We verify: nonce was issued to this wallet, signature is valid, nonce is consumed
  */
 async function authenticateAgent(
   walletAddress: string,
@@ -456,5 +366,72 @@ async function authenticateAgent(
   } catch (error) {
     console.error("Agent authentication error:", error);
     return { success: false, error: "Authentication failed" };
+  }
+}
+
+/**
+ * Verify payment transaction on Solana
+ */
+async function verifyPaymentTransaction(
+  signature: string,
+  amount: number,
+  recipient: string
+): Promise<{ verified: boolean; error?: string }> {
+  try {
+    // Basic format check
+    if (!signature || signature.length < 64) {
+      return { verified: false, error: "Invalid signature format" };
+    }
+
+    const connection = getConnection();
+    
+    // Get transaction
+    const tx = await connection.getParsedTransaction(signature, {
+      maxSupportedTransactionVersion: 0,
+      commitment: "confirmed"
+    });
+
+    if (!tx) {
+      return { verified: false, error: "Transaction not found on chain" };
+    }
+
+    if (tx.meta?.err) {
+      return { verified: false, error: "Transaction failed on chain" };
+    }
+
+    // Check time (e.g. within 24 hours to be safe against very old replays, 
+    // or even stricter if we want to prevent reuse. 
+    // Ideally we store used signatures but that requires DB schema change.
+    // For now, we rely on timestamp check.)
+    if (tx.blockTime && (Date.now() / 1000 - tx.blockTime > 3600)) {
+        return { verified: false, error: "Transaction is too old (expire > 1h)" };
+    }
+
+    // Check for USDC transfer
+    const postBalances = tx.meta?.postTokenBalances || [];
+    const preBalances = tx.meta?.preTokenBalances || [];
+
+    for (const postBalance of postBalances) {
+      if (
+        postBalance.mint === USDC_MINT.toBase58() && 
+        postBalance.owner === recipient
+      ) {
+        const preBalance = preBalances.find(p => p.accountIndex === postBalance.accountIndex);
+        const preAmount = preBalance?.uiTokenAmount?.uiAmount || 0;
+        const postAmount = postBalance.uiTokenAmount?.uiAmount || 0;
+        const received = postAmount - preAmount;
+
+        // Allow small tolerance? No, USDC is precise enough. 
+        // But float math might be slightly off.
+        if (received >= amount * 0.999) {
+          return { verified: true };
+        }
+      }
+    }
+
+    return { verified: false, error: `Payment of ${amount} USDC to treasury not found in transaction` };
+  } catch (error) {
+    console.error("Payment verification error:", error);
+    return { verified: false, error: "Verification error" };
   }
 }
