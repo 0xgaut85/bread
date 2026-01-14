@@ -22,6 +22,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const taskId = searchParams.get("taskId");
     const submitterId = searchParams.get("submitterId");
+    const walletAddress = searchParams.get("walletAddress");
     const limit = parseInt(searchParams.get("limit") || "50");
 
     const where: Record<string, unknown> = {};
@@ -42,11 +43,25 @@ export async function GET(request: Request) {
     } else if (submitterId) {
       where.submitterId = submitterId;
     }
+    
+    // Handle walletAddress lookup (for Claude Code plugin)
+    if (walletAddress) {
+      const user = await prisma.user.findUnique({
+        where: { walletAddress },
+        select: { id: true },
+      });
+      if (user) {
+        where.submitterId = user.id;
+      } else {
+        // User not found, return empty
+        return NextResponse.json({ submissions: [] });
+      }
+    }
 
     // Require at least one filter
-    if (!taskId && !submitterId) {
+    if (!taskId && !submitterId && !walletAddress) {
       return NextResponse.json(
-        { error: "taskId or submitterId is required" },
+        { error: "taskId, submitterId, or walletAddress is required" },
         { status: 400 }
       );
     }
