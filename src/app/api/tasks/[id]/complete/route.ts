@@ -207,7 +207,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     // Attempt payment transfer with retries
-    let transfer = { success: false, signature: undefined as string | undefined, error: undefined as string | undefined };
+    let transfer: { success: boolean; signature?: string; error?: string } = { success: false };
     const maxRetries = 3;
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
