@@ -117,31 +117,36 @@ export async function POST(request: NextRequest) {
     let userWallet: string;
     let isAiAgent = false;
 
-    // Check for AI agent authentication (wallet signature + payment)
+    // Check for AI agent authentication (wallet signature)
     if (walletAddress && signature && nonce) {
       isAiAgent = true;
       
-      // AI agents must pay 0.01 USDC
-      if (!paymentSignature) {
-        return NextResponse.json(
-          { 
-            error: "Payment required", 
-            message: "Please include 'paymentSignature' for 0.01 USDC transfer to treasury",
-            treasury: TREASURY_ADDRESS,
-            amount: 0.01,
-            currency: "USDC"
-          }, 
-          { status: 402 }
-        );
-      }
+      // Check if this is the official Claude Code plugin (free) or other AI agents (paid)
+      const isClaudePlugin = body.source === "bread-mcp-plugin";
+      
+      if (!isClaudePlugin) {
+        // Other AI agents must pay 0.01 USDC
+        if (!paymentSignature) {
+          return NextResponse.json(
+            { 
+              error: "Payment required", 
+              message: "AI agents must include 'paymentSignature' for 0.01 USDC transfer to treasury",
+              treasury: TREASURY_ADDRESS,
+              amount: 0.01,
+              currency: "USDC"
+            }, 
+            { status: 402 }
+          );
+        }
 
-      // Verify payment
-      const paymentResult = await verifyPaymentTransaction(paymentSignature, 0.01, TREASURY_ADDRESS);
-      if (!paymentResult.verified) {
-        return NextResponse.json(
-          { error: paymentResult.error || "Payment verification failed" },
-          { status: 402 }
-        );
+        // Verify payment
+        const paymentResult = await verifyPaymentTransaction(paymentSignature, 0.01, TREASURY_ADDRESS);
+        if (!paymentResult.verified) {
+          return NextResponse.json(
+            { error: paymentResult.error || "Payment verification failed" },
+            { status: 402 }
+          );
+        }
       }
 
       const authResult = await authenticateAgent(walletAddress, signature, nonce);
