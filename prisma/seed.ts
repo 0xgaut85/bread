@@ -80,16 +80,31 @@ async function main() {
     where: { walletAddress: systemWallet },
   });
 
+  const logoUrl = "/logo.png";
+  
   if (!systemUser) {
     systemUser = await prisma.user.create({
       data: {
         walletAddress: systemWallet,
         name: "bread.markets",
+        avatarUrl: logoUrl,
       },
     });
     console.log("✅ Created system user:", systemUser.walletAddress);
   } else {
-    console.log("✅ Found existing system user:", systemUser.walletAddress);
+    // Update existing system user to have logo avatar
+    if (systemUser.avatarUrl !== logoUrl || systemUser.name !== "bread.markets") {
+      systemUser = await prisma.user.update({
+        where: { walletAddress: systemWallet },
+        data: {
+          name: "bread.markets",
+          avatarUrl: logoUrl,
+        },
+      });
+      console.log("✅ Updated system user with logo avatar");
+    } else {
+      console.log("✅ Found existing system user:", systemUser.walletAddress);
+    }
   }
 
   // Create tasks with 12-hour deadline
