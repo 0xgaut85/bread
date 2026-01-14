@@ -204,9 +204,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate content length (prevent extremely large submissions)
-    if (trimmedContent.length > 100000) {
+    // Images (base64) can be much larger, so use higher limit for IMAGE type
+    const maxLength = type === "IMAGE" ? 10000000 : 100000; // 10MB for images, 100KB for text/links
+    if (trimmedContent.length > maxLength) {
       return NextResponse.json(
-        { error: "Submission content is too long. Maximum 100,000 characters." },
+        { error: type === "IMAGE" 
+            ? "Image is too large. Maximum 10MB." 
+            : "Submission content is too long. Maximum 100,000 characters." },
         { status: 400 }
       );
     }
