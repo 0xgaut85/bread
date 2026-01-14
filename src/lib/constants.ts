@@ -46,6 +46,7 @@ export const DAILY_BREAD_TASKS = [
 
 // Legacy aliases for backwards compatibility
 export const HOURLY_BOUNTY_TASKS = DAILY_BREAD_TASKS;
+export const HOURLY_BREAD_TASKS = DAILY_BREAD_TASKS;
 export const DAILY_TASKS = DAILY_BREAD_TASKS;
 
 // Daily bread rewards (USDC)
