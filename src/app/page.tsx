@@ -187,11 +187,11 @@ export default function HomePage() {
       )}
 
       {/* Main Content - Split Layout */}
-      <main className="flex-1 pt-24 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-[600px]">
+      <main className="flex-1 pt-32 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-[calc(100vh-200px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 h-full">
             {/* Left Side - Task Table */}
-            <div className="flex flex-col py-8 lg:pr-8 lg:border-r lg:border-white/10">
+            <div className="flex flex-col py-4 lg:pr-8 lg:border-r lg:border-white/10">
               {/* Table Header */}
               <div className="hidden sm:grid grid-cols-12 gap-2 px-4 py-3 text-xs text-muted uppercase tracking-wider border-b border-white/10">
                 <div className="col-span-1">#</div>
@@ -301,7 +301,7 @@ export default function HomePage() {
             <div className="lg:hidden w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
 
             {/* Right Side - Welcome & Rewards */}
-            <div className="flex flex-col justify-center items-center lg:items-start text-center lg:text-left py-8 lg:pl-12">
+            <div className="flex flex-col justify-center items-center lg:items-start text-center lg:text-left py-4 lg:pl-12">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
                 welcome to bread
               </h1>
